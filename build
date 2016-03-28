@@ -3,6 +3,9 @@
 prog=buildslowmovies
 usage=$prog
 #
+#	Builds everything one needs on an RPi machine.  The result
+#	is a useful disk image to duplicate the system.  It is best to
+# 	expand the root file system afterwards.
 
 mkdir -p bin lib/slow_movies src/TARS 2>/dev/null
 
