@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include <opencv2/highgui/highgui_c.h>
-//#include <opencv2/core/types.hpp>
+
 #include "arg.h"
 
 typedef unsigned long long longtime_t;
@@ -34,7 +34,7 @@ rtime_ms(void) {
 
 int
 usage(void) {
-	fprintf(stderr, "usage: splitmovie [-s start_frame] [-r seconds_per_frame] [-n movie_name] moviefile tmpdir\n");
+	fprintf(stderr, "usage: splitmovie [-s start_frame] [-r seconds_per_frame] [-n movie_name] [-T]  moviefile tmpdir\n");
 	return 1;
 }
 
@@ -46,6 +46,7 @@ main(int argc, char *argv[]) {
 	char *mfn;
 	char *tmpdir;
 	char *movie_name = 0;
+	int test = 0;
 	CvCapture *input;
 	IplImage* image;
 	longtime_t next;;
@@ -54,6 +55,7 @@ main(int argc, char *argv[]) {
 	case 'n':	movie_name = ARGF();		break;
 	case 's':	start_frame = atol(ARGF());	break;
 	case 'r':	spf = atoi(ARGF());		break;
+	case 'T':	test++;				break;
 	default:
 		return usage();
 	} ARGEND;
@@ -73,7 +75,7 @@ main(int argc, char *argv[]) {
 		return 2;
 	}
 
-	if (start_frame != 0) {
+	if (!test && start_frame != 0) {
 #ifdef notdef	// This command is broken with current ffmpeg lib, it is said
 	    cvSetCaptureProperty(input, CV_CAP_PROP_POS_FRAMES, (double)start_frame);
 #else
@@ -98,6 +100,13 @@ main(int argc, char *argv[]) {
 	while ((image = cvQueryFrame(input)) != NULL) {
 		char fn[MAXPATHLEN];
 		n++;
+		if (test) {
+			if (image == 0) {
+				fprintf(stderr, "splitmovie cannot read file\n");
+				return 1;
+			} else
+				return 0;
+		}
 		snprintf(fn, sizeof(fn), "%s/%06lu.jpeg", tmpdir, current_frame);
 		if (cvSaveImage(fn, image, 0) < 0)
 			perror("cvSaveImage");
