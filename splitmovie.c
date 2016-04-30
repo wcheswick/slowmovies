@@ -32,25 +32,24 @@ rtime_ms(void) {
 
 int
 usage(void) {
-	fprintf(stderr, "usage: splitmovie [-n number-of-frames] [-s start_frame] [-r seconds_per_frame] moviefile tmpdir\n");
+	fprintf(stderr, "usage: splitmovie [-s start_frame] [-r seconds_per_frame] [-n movie_name] moviefile tmpdir\n");
 	return 1;
 }
 
 int
 main(int argc, char *argv[]) {
-	u_long start_frame = 0;
+	u_long start_frame = 0, current_frame;
 	int spf = 5;
-	long number_of_frames = -1;	// -1 for all frames
-	u_long current_frame;
-	u_long n = 0;
+	int n = 0;
 	char *mfn;
 	char *tmpdir;
+	char *movie_name = 0;
 	CvCapture *input;
 	IplImage* image;
 	longtime_t next;;
 
 	ARGBEGIN {
-	case 'n':	number_of_frames = atol(ARGF());	break;
+	case 'n':	movie_name = ARGF();		break;
 	case 's':	start_frame = atol(ARGF());	break;
 	case 'r':	spf = atoi(ARGF());		break;
 	default:
@@ -62,6 +61,9 @@ main(int argc, char *argv[]) {
 
 	mfn = *argv++;
 	tmpdir = *argv++;
+
+	if (!movie_name)
+		movie_name = mfn;
 
 	input = cvCaptureFromFile(mfn);
 	if (input == NULL) {
@@ -93,28 +95,21 @@ main(int argc, char *argv[]) {
 
 	while ((image = cvQueryFrame(input)) != NULL) {
 		char fn[PATH_MAX];
-
 		n++;
-		current_frame++;
-		if (number_of_frames >= 0 && n > number_of_frames)
-			break;
-
-		snprintf(fn, sizeof(fn), "%s/%06lu.jpeg", tmpdir, current_frame);
-		printf("%s	%ld\n", fn, current_frame);
-
-		if (cvSaveImage(fn, image, 0) < 0) {
+		snprintf(fn, sizeof(fn), "%s/%06d.jpeg", tmpdir, current_frame);
+		if (cvSaveImage(fn, image, 0) < 0)
 			perror("cvSaveImage");
-			return 10;
-		}
 
-		if (spf > 0) {
-			while (rtime_ms() < next)
-				usleep(100*1000);
-			next = rtime_ms() + spf*1000;	// When to se d the next one
-		}
+		while (rtime_ms() < next)
+			usleep(100*1000);
+		printf("%s	%s	%ld\n", fn, movie_name, current_frame);
+		next = rtime_ms() +spf*1000;	// When to send the next one
+		current_frame++;
 	}
 
 	cvReleaseCapture(&input);
-	fprintf(stderr, "Frames read: %lu\n", n);
+	fprintf(stderr, "Frames read: %d\n", n);
+	if (n == 0)
+		return 1;
 	return 0;
 }

@@ -1,9 +1,9 @@
-BIN=${HOME}/bin
+BIN=$${HOME}/bin
 
-CFLAGS+=-I/opt/local/include -Wno-implicit-function-declaration # -I/usr/local/include
-LDFLAGS+=-L/opt/local/lib -L/usr/local/lib
-LDFLAGS+=-lopencv_highgui -lopencv_video -lopencv_core -lopencv_imgcodecs
-LDFLAGS+=-lopencv_videostab -lopencv_imgproc -lopencv_videoio
+CFLAGS+=-I/opt/local/include -I/usr/local/include
+LDFLAGS+=-L/usr/local/lib
+LDFLAGS+=-lopencv_highgui -lopencv_core -lopencv_imgcodecs
+LDFLAGS+=-lopencv_video -lopencv_videostab -lopencv_imgproc -lopencv_videoio
 
 all::	splitmovie
 
@@ -13,20 +13,21 @@ splitmovie:	splitmovie.c
 clean::
 	rm -f *.o splitmovie
 
-install::	${BIN}/splitmovie ${BIN}/setwallpaper ${BIN}/surfside \
-		${BIN}/ptsm ${BIN}/prepmovie
-
-${BIN}/ptsm:	ptsm
-	cp $< $@
-
-${BIN}/prepmovie:	prepmovie
-	cp $< $@
-
-${BIN}/surfside:	surfside
-	cp $< $@
+install::	${BIN}/splitmovie ${BIN}/surfside \
+		${BIN}/fetchslowmovies ${BIN}/slowdefs
 
 ${BIN}/splitmovie:	splitmovie
 	cp $< $@
 
+${BIN}/surfside:	surfside
+	-mv -f $@ ${BIN}/OLD$<
+	cp $< $@
+
 ${BIN}/setwallpaper:	setwallpaper
+	cp $< $@
+
+${BIN}/fetchslowmovies:	fetchslowmovies
+	cp $< $@
+
+${BIN}/slowdefs:	slowdefs
 	cp $< $@

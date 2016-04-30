@@ -1,16 +1,17 @@
 #!/bin/sh
 #
 prog=surfside
-usage="usage: $prog [-r]"
+usage="usage: $prog [-r] [-N]"
 #
 #	Continue watching the beach at Surfside, very slowly
 #
 #	-r resets to the start
+#	-N just list the reels
 
 . slowdefs
 
 exec 2>/tmp/surfside.err
-set -x
+#set -x
 
 case $1 in
 -r)	echo 1 >$CURRENT_MOVIE
@@ -31,6 +32,13 @@ TMPDIR=/tmp/$prog;	export TMPDIR
 if [ ! -d $TMPDIR ]
 then
 	mkdir $TMPDIR || exit 90
+fi
+
+LOG=/var/log/slow
+if [ ! -f $LOG ]
+then
+	sudo cp /dev/null $LOG
+	sudo chown pi $LOG
 fi
 
 cp /dev/null $TMPDIR/test || {
@@ -82,6 +90,10 @@ fi
 
 movie_count=`wc -l <$MOVIE_LIST | tr -d ' '`
 
+log() {
+	echo "`date "+%Y-%m-%d %H:%M:%S"`	$1" >>$LOG
+}
+
 while true		# loop through movies
 do
 	if [ ! -s $CURRENT_MOVIE ]
@@ -94,7 +106,7 @@ do
 
 	if [ ! -d "$MOVIE_LIB/$movie_name" ]
 	then
-		echo "$prog: cannot find movie at index $MOVIE_INDEX" 1>&2
+		log "$prog: cannot find movie at index $MOVIE_INDEX, exiting"
 		exit 10
 	fi
 
@@ -104,13 +116,16 @@ do
 	fi
 
 	reel_index=`sed 1q $CURRENT_REEL`
+set -x
 	reel_list=`cd $MOVIE_LIB/$movie_name; ls *.mp4`
+set +x
 	reel_count=`echo "$reel_list" | wc -l | tr -d ' '`
 	reels=`echo "$reel_list" | sed "${reel_index}"',$p'`
 
+	# show each reel of the current movie
+
 	while [ $reel_index -le $reel_count ]
 	do
-		echo "$prog:	showing $movie_name, reel $reel_index" 1>&2
 		reel=`echo "$reel_list" | sed "${reel_index}q" | tail -1`
 		if [ ! -s "$CURRENT_FRAME" ]
 		then
@@ -118,13 +133,34 @@ do
 		fi
 		frame=`sed 1q $CURRENT_FRAME`
 
-		splitmovie -r 10 -s $frame $MOVIE_LIB/$movie_name/$reel $TMPDIR
+		log "showing $movie_name, reel $reel_index of $reel_count"
+		if [ $frame -ne 0 ]
+		then
+			log "Skipping to frame $frame"
+		fi
+
+		# This program writes a line out every 10 seconds.  The pipe below
+		# reads this and should have it displayed before the next write
+		# here.
+
+		splitmovie -r 10 -s $frame -n "$movie_name/${reel_index}" \
+			$MOVIE_LIB/$movie_name/$reel $TMPDIR || {
+			case $? in
+			1) log "no frames found in $movie_name/${reel_index} (err $?)"
+				;;
+			143) log "aborted."
+				;;
+			*) log "splitmovie error code $?"
+			esac
+		}
 
 		reel_index=`expr $reel_index + 1`
 		echo "$reel_index" >$CURRENT_REEL
 		rm -f $CURRENT_FRAME
 	done
 	rm -f $CURRENT_REEL
+
+	# advance to the next movie
 
 	movie_index=`expr $movie_index + 1`
 	if [ $movie_index -gt $movie_count ]
@@ -133,7 +169,7 @@ do
 	fi
 	echo "$movie_index" >$CURRENT_MOVIE
 done |
-while read fn frame_number	# each line contains a path name and a frame number
+while read fn name frame_number	# each line contains a path name and a frame number
 do
 	# generate clock overlay
 	time=`date +%H:%M`
@@ -142,7 +178,7 @@ do
 
 	# generate movie and url overlay
 	bn=`basename $fn`
-	info=`printf "Frame %d in movie '%s'      See http://cheswick.com/slowmovies/index.html" $frame_number $fn`
+	info=`printf "Frame %d in movie '%s'      See http://cheswick.com/slowmovies/index.html" $frame_number $name`
 	pbmtextps -font FreeSansBold -fontsize 10 "$info" |
 		pnmcrop -white |
 		pnmmargin -white 4 >$TMPDIR/info.pbm
