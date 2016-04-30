@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/param.h>
 #include <unistd.h>
 
 #include <opencv2/highgui/highgui_c.h>
@@ -94,9 +95,9 @@ main(int argc, char *argv[]) {
 	current_frame = start_frame;
 
 	while ((image = cvQueryFrame(input)) != NULL) {
-		char fn[PATH_MAX];
+		char fn[MAXPATHLEN];
 		n++;
-		snprintf(fn, sizeof(fn), "%s/%06d.jpeg", tmpdir, current_frame);
+		snprintf(fn, sizeof(fn), "%s/%06lu.jpeg", tmpdir, current_frame);
 		if (cvSaveImage(fn, image, 0) < 0)
 			perror("cvSaveImage");
 
