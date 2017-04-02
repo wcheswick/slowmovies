@@ -6,6 +6,8 @@ usage=$prog
 #	Sets up my development environment in user 'ches' on the pi.  Not
 #	needed for just running slowmovies on the device.
 
+cd
+
 if ! which jove >/dev/null
 then
 	sudo apt-get install jove
@@ -13,9 +15,8 @@ fi
 
 mkdir -p bin src 2>/dev/null
 
-if ! which sam >/dev/null
-then
-
+case `which sam` in
+"")
 	if [ ! -d src/plan9port ]
 	then
 		(cd src; git clone https://github.com/9fans/plan9port.git)
@@ -24,97 +25,69 @@ then
 	echo "$prog:	building plan9 unix tools, this will take a while" 1>&2
 
 	sudo apt-get install libx11-dev libxt-dev libxext-dev
-
 	(cd src/plan9port; ./INSTALL) && {
-		(	echo 'PLAN9=/home/pi/src/plan9port; export PLAN9'
+		(	echo 'PLAN9=$HOME/src/plan9port; export PLAN9'
 			echo 'PATH=$PATH:$PLAN9/bin;	export PATH'
 		) >>$HOME/.profile
 	}
-fi
 
-exit 13
+	hash -r
+	. $HOME/.profile
+	case `which sam` in
+	"")
+		echo "$prog: sam installation failed" 1>&2
+		exit 10
+	esac
+esac
 
-mkdir -p bin lib/slow_movies src/TARS 2>/dev/null
+case `which pnmscale` in
+"")	sudo apt-get install -y netpbm
+esac
 
-if ! grep /usr/local/netpbm/bin $HOME/.profile >/dev/null
+case `which display` in
+"")	sudo apt-get install -y imagemagick
+esac
+
+if [ ! -s /usr/include/jpeglib.h ]
 then
-	echo 'PATH=$PATH:/usr/local/netpbm/bin;	export PATH' >>$HOME/.profile
+	sudo apt-get install -y libjpeg-dev
 fi
 
-. $HOME/.profile
-hash -r
-
-
-
-# Needed for the movie program
-
-if ! which display >/dev/null
+if [ ! -s /usr/include/arm-linux-gnueabihf/tiffio.h ]
 then
-	sudo apt-get install -y imagemagick
+	sudo apt-get install -y libtiff-dev
 fi
 
-if ! which pnmscale >/dev/null
-then
-    	# we go through this silly source build because pamscale/pnmscale are
-	# not delivered reliably on Linux.
+case `which xterm` in
+"")    	sudo apt-get install xterm
+esac
 
-	pbmdir=`ls -d src/netpbm* | sed 1q`
-	if [ ! "$pbmdir" ]
-	then
-		if [ ! -s src/TARS/netpbm.tgz ]
-		then
-                    	echo "$prog:	fetching netpbm, with pnmscale" 1>&2
-			curl -L https://sourceforge.net/projects/netpbm/files/latest/download >src/T!
-		fi
+case `which 9wm` in
+"")    	sudo apt-get install 9wm
+esac
 
-		(cd src; tar zxf TARS/netpbm.tgz)	|| exit 1
-		pbmdir=`ls -d src/netpbm* | sed 1q`
-	fi
-	if [ ! "$pbmdir" ]
-	then
-		echo "$prog:	can not find netpbm" 1>&2
-		exit 2
-	fi
+#mkdir -p bin lib/slow_movies src/TARS 2>/dev/null
 
-	if [ ! -s /usr/include/jpeglib.h ]
-	then
-		sudo apt-get install -y libjpeg-dev
-	fi
+#	(cd $pbmdir
+#		rm -rf /tmp/netpbm
+#		make LEX="" package pkgdir=/tmp/netpbm	|| exit 21
+#		echo "$prog:	again, hit ENTER as needed" 1>&2
+#		sudo ./installnetpbm		|| exit 22
+#		sudo ldconfig /usr/local/netpbm/lib
+#	)	|| exit 23
 
-	if [ ! -s /usr/include/arm-linux-gnueabihf/tiffio.h ]
-	then
-		sudo apt-get install -y libtiff-dev
-	fi
+#if [ ! -s src/TARS/surfside.tar ]
+#then
+#	echo "$prog: fetching slowmovie code" 1>&2
+#	curl "http://www.cheswick.com/ches/surfside.tar" >src/TARS/surfside.tar
+#
+#	mkdir -p src/surfside 2>/dev/null
+#	(cd src; tar xf TARS/surfside.tar)	|| exit 3
+#fi
 
-	if [ ! -s src/netpbm*/editor/pnmscale ]
-	then
-		echo "$prog: building netpbm.  Hit RETURN for each of the stupid questions." 1>&2
-		(cd $pbmdir
-			make LEX=""
-		)
-	fi
+#echo "$prog:	installing prereqs" 1>&2
 
-	(cd $pbmdir
-		rm -rf /tmp/netpbm
-		make LEX="" package pkgdir=/tmp/netpbm	|| exit 21
-		echo "$prog:	again, hit ENTER as needed" 1>&2
-		sudo ./installnetpbm		|| exit 22
-		sudo ldconfig /usr/local/netpbm/lib
-	)	|| exit 23
-fi
-
-if [ ! -s src/TARS/surfside.tar ]
-then
-	echo "$prog: fetching slowmovie code" 1>&2
-	curl "http://www.cheswick.com/ches/surfside.tar" >src/TARS/surfside.tar
-
-	mkdir -p src/surfside 2>/dev/null
-	(cd src; tar xf TARS/surfside.tar)	|| exit 3
-fi
-
-echo "$prog:	installing prereqs" 1>&2
-
-apt-get install -y libcv-dev
+#apt-get install -y libcv-dev
 exit 13
 
 if [ ! -d /usr/include/opencv ]
@@ -175,16 +148,6 @@ fi
 
 echo "$prog:	misc installs we need" 1>&2
 
-if ! which xterm >/dev/null
-then
-    	sudo apt-get install xterm
-fi
-
-if ! which 9wm >/dev/null
-then
-    	sudo apt-get install 9wm
-fi
-
 echo "$prog:	helpful tools, the real ffmpeg" 1>&2
 (cd src; git clone git://source.ffmpeg.org/ffmpeg.git ffmpeg
 	cd ffmpeg
@@ -200,7 +163,9 @@ echo "$prog:	building slowmovie code" 1>&2
 	make install	|| exit 11
 )
 
-cat <<!EOF >$HOME/.Xdefaults
+if [ ! -s $HOME/.Xdefaults ]
+then
+	cat <<!EOF >$HOME/.Xdefaults
 xterm*geometry:         90x40
 xterm*ttyModes:         intr ^? erase ^H kill ^U eof ^D
 xterm*autoRaise:        true
@@ -231,6 +196,9 @@ sam*foreground:         darkblue
 *ClickToFocus:          True
 *AutoRaise:             10
 !EOF
+fi
+
+exit 14
 
 cat <<!EOF >$HOME/.xinitrc
 userresources=/home/pi/.Xresources

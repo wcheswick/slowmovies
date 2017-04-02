@@ -1,0 +1,15 @@
+I develop this software on an RPi under user ches.  The actual movie
+is setup and run under user pi.  These are the steps I use to setup
+the dev machine, before the script "devsetup" is available.
+
+- adduser ches
+- add user ches to group sudo
+- load in the slowmovie code:
+
+git clone https://github.com/wcheswick/slowmovies
+cd slowmovies
+./devsetup
+
+That script should set up everything needed to compile and build the slowmovie stuff,
+including the development tools I prefer.
+
