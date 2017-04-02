@@ -1,29 +1,17 @@
 #!/bin/sh
 #
-prog=buildslowmovies
+prog=devsetup
 usage=$prog
 #
-#	Builds everything one needs on an RPi machine.  The result
-#	is a useful disk image to duplicate the system.  It is best to
-# 	expand the root file system afterwards.
-
-mkdir -p bin lib/slow_movies src/TARS 2>/dev/null
-
-if ! grep /usr/local/netpbm/bin $HOME/.profile >/dev/null
-then
-	echo 'PATH=$PATH:/usr/local/netpbm/bin;	export PATH' >>$HOME/.profile
-fi
-
-. $HOME/.profile
-hash -r
-
-# install software I use for development.
+#	Sets up my development environment in user 'ches' on the pi.  Not
+#	needed for just running slowmovies on the device.
 
 if ! which jove >/dev/null
 then
 	sudo apt-get install jove
 fi
 
+mkdir -p bin src 2>/dev/null
 
 if ! which sam >/dev/null
 then
@@ -37,11 +25,26 @@ then
 
 	sudo apt-get install libx11-dev libxt-dev libxext-dev
 
-	(cd src/plan9port; ./INSTALL)
-	(	echo 'PLAN9=/home/pi/src/plan9port; export PLAN9'
-		echo 'PATH=$PATH:$PLAN9/bin;	export PATH'
-	) >>$HOME/.profile
+	(cd src/plan9port; ./INSTALL) && {
+		(	echo 'PLAN9=/home/pi/src/plan9port; export PLAN9'
+			echo 'PATH=$PATH:$PLAN9/bin;	export PATH'
+		) >>$HOME/.profile
+	}
 fi
+
+exit 13
+
+mkdir -p bin lib/slow_movies src/TARS 2>/dev/null
+
+if ! grep /usr/local/netpbm/bin $HOME/.profile >/dev/null
+then
+	echo 'PATH=$PATH:/usr/local/netpbm/bin;	export PATH' >>$HOME/.profile
+fi
+
+. $HOME/.profile
+hash -r
+
+
 
 # Needed for the movie program
 
