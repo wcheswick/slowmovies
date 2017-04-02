@@ -4,6 +4,9 @@ the dev machine, before the script "devsetup" is available.
 
 - adduser ches
 - add user ches to group sudo
+
+echo "machine github.com login <name> password <pw>" >$HOME/.netrc
+
 - load in the slowmovie code:
 
 git clone https://github.com/wcheswick/slowmovies
