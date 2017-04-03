@@ -43,16 +43,19 @@ then
 		cd $HOME/src
 		git clone https://github.com/opencv/opencv.git
 	else
-		cd $HOME/src
-		git pull https://github.com/opencv/opencv.git
+		cd $HOME/src/opencv	|| exit 10
+		git pull
 	fi
 
-	mkdir -p $HOME/src/build 2>/dev/null
-	cd $HOME/src/build
+	mkdir -p $HOME/src/opencv/build 2>/dev/null
+	cd $HOME/src/opencv/build
 
 	# cmake -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DBUILD_EXAMPLES=ON ..
 
-	cmake -DBUILD_SHARED_LIBS=OFF .. &&
+	cmake -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTS=OFF \
+		-DBUILD_opencv_apps=OFF -dBUILD_DOCS=OFF \
+		-DBUILD_PERF_TESTS=OFF -DBUILD_FAT_JAVA_LIB=OFF \
+		-DBUILD_TESTS=OFF -DBUILD_WITH_STATIC_CRT=ON .. &&
 		make &&
 		sudo make install &&
 		sudo ldconfig
