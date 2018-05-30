@@ -34,6 +34,8 @@ do
 	*.data)	continue;
 	esac
 
+	echo $srcpath >>/tmp/$prog.log
+
 	srcname=`basename $srcpath`
 	srcdir=`dirname $srcpath`
 	name=`echo $srcname | sed 's/\.[^\.]*$//'`
@@ -119,6 +121,11 @@ fi
 			fi
 		fi
 	done
+
+	(cd $cataloged_video;
+		tar cf frames.tar frames/*
+	)
+
 	echo "$prog:	$name	`ls $WRKDIR/$name/frames | wc -l` frames" 1>&2
 
 	# generate new catalog index
