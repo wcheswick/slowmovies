@@ -1,0 +1,131 @@
+#!/bin/sh
+#
+prog=addmovie
+usage="$prog [-f] m1 m2 ..."
+#
+#	Add movies to our catalog.  We are given one or more movie
+#	files, each of which may have additional information in a .data file.
+#	All are processed into the catalog directory, if forced or the catalog
+#	entry is missing or older.
+#
+#	-f	force rebuild of given movies
+
+WEB_CATALOG=/r/media/slowmovies/catalog
+
+WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
+mkdir -p $WRKDIR        || exit 100
+#trap "rm -rf $WRKDIR" EXIT
+
+force=
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-f)	force=true;	shift;;
+	-*)	echo "$usage" 1>&2
+		exit 1;;
+	*)	break
+	esac
+done
+
+while [ $# -gt 0 ]
+do
+	srcpath=$1;	shift
+	case "$srcpath" in
+	*.data)	continue;
+	esac
+
+	srcname=`basename $srcpath`
+	srcdir=`dirname $srcpath`
+	name=`echo $srcname | sed 's/\.[^\.]*$//'`
+	data="$srcdir/$name.data"
+	
+	cataloged_video="$WEB_CATALOG/$name"
+	if [ ! -f "$catalog" -o \
+		"$srcpath" -nt "$cataloged_video" -o \
+		"$data" -nt "$cataloged_video" -o \
+		-n "$force" ]
+	then
+		echo "$prog: adding video $srcname" 1>&2
+
+if true # [ ! -d $WRKDIR/$name/frames ]	# debug
+then
+		rm -rf "$WRKDIR/$name"
+		mkdir -p "$WRKDIR/$name/frames"
+
+		ffmpeg -i $srcpath -q:v 2 -v 16 -huffman optimal \
+			$WRKDIR/$name/frames/%09d.jpeg
+else
+	echo "$prog:  DEBUG: skipping movie breakout" 1>&2
+fi
+	else
+		echo "$prog: $srcname up to date, skipping" 1>&2
+		continue
+	fi
+
+	title="$name"
+	first=0
+	spf=10
+	count=all
+	if [ -s "$data" ]
+	then
+		while read line
+		do
+			trimmed=`echo "$line" | sed 's/[ 	]*#.*$//'`
+			field=`echo "$trimmed" | cut -f1`
+			value=`echo "$trimmed" | sed 's/^[^ 	]*[	 ]*//'`
+			case "$field" in
+			title)	title="$value";;
+			first)	first=$value;;
+			spf)	spf=$value;;
+			count)	count=$value;;
+			*)
+				echo "$prog: unknown data field: $field	$value" 1>&2
+			esac
+		done  <$data
+	fi
+
+	origsize=`du -sh $srcpath | awk '{print $1}'`
+	cachesize=`du -sh $WRKDIR/$name | awk '{print $1}'`
+	cachecount=`ls | wc -l`
+	echo "$prog:   $name	$origsize  $cachesize	$cachecount" 1>&2
+	echo "$prog:   		starting at $first, $count frames" 1>&2
+
+	rm -rf $cataloged_video
+	mkdir -p $cataloged_video/frames	|| exit 10
+	rm -f $cataloged_video/updated
+
+	# strip leading frames, if desired
+	if [ $first -gt 0 ]
+	then
+		ls $WRKDIR/$name/frames/* | sed -n "1,${first}p" |
+		while read fn
+		do
+			rm -f $fn
+		done
+	fi
+	date +%s >$cataloged_video/updated
+
+	i=0
+	ls $WRKDIR/$name/frames/* |
+	while read frame
+	do
+		cp $frame $cataloged_video/frames
+		i=`expr $i + 1`
+		if [ "$count" != "all" ]
+		then
+			if [ -a $i -ge $count ]
+			then
+				break
+			fi
+		fi
+	done
+	echo "$prog:	$name	`ls $WRKDIR/$name/frames | wc -l` frames" 1>&2
+
+	# generate new catalog index
+	(cd $WEB_CATALOG;
+		for i in *
+		do
+			echo "$i	`cat $i/updated`"
+		done >../index
+	)
+done
