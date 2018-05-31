@@ -26,7 +26,7 @@ esac
 WRKDIR=$TMPDIR/slowmovies
 mkdir -p $WRKDIR
 
-cd $MOVIE_LIB
+cd $MOVIE_LIB	|| exit 1
 
 curl -s "$MOVIE_LIST_URL" -o index || exit 2	# our list of movies
 

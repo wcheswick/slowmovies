@@ -29,3 +29,6 @@ do
 	fi
 done
 
+. slowdefs
+
+mkdir -p $MOVIE_LIB/catalog	|| exit 3
