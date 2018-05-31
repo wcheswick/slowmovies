@@ -3,28 +3,103 @@
 prog=playsm
 usage="$prog m1 m2 ..."
 #
-#	Play a slow movie on the current machine
+#	Play a slow movie on the current machine.  There are a few styles:
+#
+#	desktop	desktop backround (x root, or equivalent)
+#	full	full screen
+#
+#	We pick the best we can
 
+
+export PATH=$PATH:$HOME/bin
 
 . ./slowdefs
+
+case `uname` in
+Linux)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=desktop
+	;;
+Darwin)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=appledesktop
+	;;
+FreeBSD)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=desktop
+	;;
+*)		# just guessing here
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=desktop
+esac
+
+WRKDIR=$TMPDIR/slowmovies
+mkdir -p $WRKDIR
+rm -rf $WRKDIR/*
 
 cd $MOVIE_CATALOG
 
 while [ $# -gt 0 ]
 do
-	movie=$1
+	movie="$1"
 
-	if [ ! -d $movie }
+	if [ ! -d "$movie" }
 	then
-		echo "$prog: movie missing from $MOVIE_LIB: $movie" 1>&2
+		echo "$prog: $movie	missing" 1>&2
 		continue
 	fi
 
-	spf=`sed 1q $movie/info | grep fps | cut -f2 -d"	"`
-	case "$spf" in
-	[0-9]*)	;;
-	*)	spf=10
-	esac
+	echo "$prog: $movie	playing" 1>&2
+	. "$movie"/info
 
+	ffmpeg -i "$movie"/video.* -q:v 2 -v 16 -huffman optimal \
+		$WRKDIR/frame%09d.jpeg &
 
+	if [ ! -n "$spf ]
+	then
+		spf=10		# default six frames per minute
+	fi
+
+	sleep 3		# let ffmpeg start cracking
+
+	fn=`ls $WRKDIR | sed 1q`
+	ofn=""
+
+	if [ ! -n $fn ]
+	then
+		echo "$prog:	apparent ffmpeg problem, aborting" 1>&2
+		exit 2
+	fi
+
+	while [ -n "$fn" ]
+	do
+		if [ -n "$ofn" ]
+		then		# ditch previous one
+			rm -f $WRKDIR/$ofn	|| {
+				echo "$prog:	frame disappeared: $ofn" 1>&2
+			}
+		fi
+
+		case $style in
+		desktop)
+			xloadimage -fullscreen -onroot -border black $fn
+			;;
+		appledesktop)
+osascript <<!EOF
+tell application "System Events"
+        tell (every desktop)
+                set picture rotation to 0
+                set picture to POSIX file "$fn"
+        end tell
+end tell
+!EOF
+			;;
+		full)
+			xloadimage -fullscreen -border black $fn
+			;;
+		esac
+
+		sleep $spf
+		ofn="$fn"
+	done
 done

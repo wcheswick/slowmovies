@@ -13,11 +13,21 @@ then
 	mkdir -p ${BIN}	|| exit 1
 fi
 
-
-if [ ! -n `which ffmpeg` ]
-then
-	sudo apt-get install -y ffmpeg	|| exit 10
-fi
+for p in ffmpeg xloadimage
+do
+	if [ ! -n `which $p` ]
+	then
+		case `uname` in
+		Linux)
+			sudo apt-get install -y $p	|| exit 10;;
+		FreeBSD)
+			sudo sudo pkg -y install $p;;
+		Darwin)
+			# stub
+			;;
+		esac
+	fi
+done
 
 progs="addsm updatesm playsm slowdefs"
 

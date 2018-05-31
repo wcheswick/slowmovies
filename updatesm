@@ -9,23 +9,6 @@ export PATH=$PATH:$HOME/bin
 
 . ./slowdefs
 
-case `uname` in
-Linux)
-	TMPDIR=${TMPDIR:-/var/tmp}
-	;;
-Darwin)
-	TMPDIR=${TMPDIR:-/var/tmp}
-	;;
-FreeBSD)
-	TMPDIR=${TMPDIR:-/var/tmp}
-	;;
-*)		# just guessing here
-	TMPDIR=${TMPDIR:-/var/tmp}
-esac
-
-WRKDIR=$TMPDIR/slowmovies
-mkdir -p $WRKDIR
-
 cd $MOVIE_LIB	|| exit 1
 
 curl -s "$MOVIE_LIST_URL" -o index || exit 2	# our list of movies
