@@ -11,7 +11,7 @@ export PATH=$PATH:$HOME/bin
 
 cd $MOVIE_LIB	|| exit 1
 
-curl -s "$MOVIE_LIST_URL" -o index || exit 2	# our list of movies
+curl -s "$MOVIE_INDEX_URL" -o index || exit 2	# our list of movies
 
 cat index |
 while read line
