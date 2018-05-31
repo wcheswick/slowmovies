@@ -5,6 +5,8 @@ usage="usage: $prog"
 #
 #	Check the mother site for movies we don't have.
 
+export PATH=$PATH:$HOME/bin
+
 . ./slowdefs
 
 case `uname` in
@@ -23,8 +25,6 @@ esac
 
 WRKDIR=$TMPDIR/slowmovies
 mkdir -p $WRKDIR
-
-mkdir -p $MOVIE_CATALOG	|| exit 1	# in case it is our first use
 
 cd $MOVIE_LIB
 
@@ -58,6 +58,7 @@ do
 		echo "$prog:	error, skipping" 1>&2
 		continue
 	}
-
-	ls -l $MOVIE_CATALOG/"$name"
 done
+
+du -sh $MOVIE_CATALOG
+

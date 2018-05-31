@@ -98,6 +98,5 @@ chmod +x "$video_info"
 		. "$i"/info
 		echo "$title	$updated"
 	done >../index
-	du -sh .
+	(cd ..; du -sh catalog)
 ) 
-
