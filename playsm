@@ -9,7 +9,7 @@ usage="$prog m1 m2 ..."
 #	full	full screen
 #
 #	We pick the best we can
-
+#
 
 export PATH=$PATH:$HOME/bin
 
