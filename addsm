@@ -11,13 +11,16 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] title i1 i2 ..."
 #	All are processed into the catalog directory, if forced or the catalog
 #	entry is missing or older.
 #
-#	-f	force rebuild of given movies
+#	Careful with those quotes: these titles usually contain spaces. Tabs
+#	are our field separators.
+#
+###	-f	force rebuild of given movies
 
 WEB_CATALOG=/r/media/slowmovies/catalog
 
-WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
-mkdir -p $WRKDIR        || exit 100
-trap "rm -rf $WRKDIR" EXIT
+#WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
+#mkdir -p $WRKDIR        || exit 100
+#trap "rm -rf $WRKDIR" EXIT
 
 spf=10
 start=0
@@ -47,29 +50,52 @@ inputlist=""
 while [ $# -gt 0 ]
 do
 	inputlist="$inputlist -i $1"
+	shift
 done
 
 cataloged_video="$WEB_CATALOG/$title"
-rm -f $cataloged_video/info
+video_info="$cataloged_video"/info
 
-ffmpeg $inputlist -q:v 2 -v 16 -huffman optimal "$cataloged_video/video.mp4"
+if [ -d "$cataloged_video" ]
+then
+	if [ ! -s "$video_info" ]
+	then
+		echo "Info missing rebuilding	$title ..." 1>&2
+		rm -rf "$cataloged_video"
+	else
+		echo "Skipping	$title ..." 1>&2
+		exit 0
+	fi
+fi
+
+mkdir -p "$cataloged_video"
+
+#rm -f "$video_info"
+
+echo "Processing	$title ..." 1>&2
+ffmpeg $inputlist -q:v 2 -v 16 -huffman optimal "$cataloged_video/video.mp4" || {
+	rm -rf "$cataloged_video"
+	echo "	error, aborting" 1>&2
+	exit 10
+}
+
 
 # generate executable shell variables for relevant information
 
-cat <<!EOF >$cataloged_video/info
+cat <<!EOF >"$video_info"
 title='$title'
 spf=$spf
 start=$start
 count=$count
 updated=`date +%s`
 !EOF
-chmod +x $cataloged_video/info
+chmod +x "$video_info"
 
 # generate new catalog index
 (cd $WEB_CATALOG;
 	for i in *
 	do
-		. info
+		. "$i"/info
 		echo "$title	$updated"
 	done
 ) >../index
