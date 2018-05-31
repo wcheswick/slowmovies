@@ -13,7 +13,7 @@ usage="$prog m1 m2 ..."
 
 export PATH=$PATH:$HOME/bin
 
-. ./slowdefs
+. slowdefs
 
 case `uname` in
 Linux)
@@ -55,7 +55,7 @@ do
 	ffmpeg -i "$movie"/video.* -q:v 2 -v 16 -huffman optimal \
 		$WRKDIR/frame%09d.jpeg &
 
-	if [ ! -n "$spf ]
+	if [ ! -n "$spf" ]
 	then
 		spf=10		# default six frames per minute
 	fi
@@ -102,4 +102,7 @@ end tell
 		sleep $spf
 		ofn="$fn"
 	done
+	wait
+	ls -l $WRKDIR
+	rm -rf $WRKDIR/*
 done
