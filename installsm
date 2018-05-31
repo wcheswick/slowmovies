@@ -19,7 +19,7 @@ then
 	sudo apt-get install -y ffmpeg	|| exit 10
 fi
 
-progs="addmovie fetchslowmovies playsm"
+progs="addsm fetchsm playsm"
 
 for i in $progs
 do

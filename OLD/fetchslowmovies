@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+prog=fetchslowmovies
+usage="usage: $prog"
+#
+#	Check the mother site for movies we don't have.
+
+. slowdefs
+
+mkdir -p $MOVIE_LIB 2>/dev/null
+
+TMP=/tmp/$prog
+mkdir -p $TMP 2>/dev/null
+
+cd $MOVIE_LIB
+
+curl -s "$MOVIE_LIST_URL" -o $TMP/list.new || exit 1
+
+if [ -s list ]
+then
+	if diff $MOVIE_LIST $TMP/list.new >/dev/null
+	then
+		return 0
+	fi
+fi
+
+cat $TMP/list.new |
+while read line
+do
+	set x $line
+	shift
+
+	case $# in
+	0)
+		continue;;
+	1)
+     		url="$1"
+		fn=`basename "$url"`
+		rate=10
+		name="$fn"
+		;;
+	2)
+     		url="$1"
+		fn=`basename "$url"`
+		rate=$2
+		name="$fn"
+		;;
+	3)
+     		url="$1"
+		fn=`basename "$url"`
+		rate=$2
+		name="$3"
+		;;
+	*)
+		echo "$prog: movie list format error, get help." 1>&2
+		exit 1
+	esac
+
+	if [ ! -s $fn ]		# if we don't already have it
+	then
+		curl "$url" >$fn || {
+			echo "$prog:	fetch failed for $url" 1>&2
+		continue
+		}
+	fi
+	echo "$url	$rate	$name	$fn"	
+done >>$MOVIE_LIST
+
+rm -f $TMP/list.new
+
