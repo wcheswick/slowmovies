@@ -20,7 +20,7 @@ TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 #[mpeg1video @ 0x808c18f00] Warning MVs not available
 #./addsm "At the beach"			$TIME_LAPSE/beach.mpg
 ./addsm "Bernardsville North"		$TIME_LAPSE/bville-north-clip.mov
-./addsm "My Old Commute"		$TIME_LAPSE/commute.mov
+./addsm "My Old Commute to FP"		$TIME_LAPSE/commute.mov
 ./addsm "Around Darien"			$TIME_LAPSE/darien.mov
 ./addsm "Ellivesdranreb"		$TIME_LAPSE/ellivsdranreb.mov
 ./addsm "EWR to ORD test"		$TIME_LAPSE/ewr-ord-test.mov

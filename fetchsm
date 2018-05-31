@@ -7,6 +7,23 @@ usage="usage: $prog"
 
 . ./slowdefs
 
+case `uname` in
+Linux)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	;;
+Darwin)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	;;
+FreeBSD)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	;;
+*)		# just guessing here
+	TMPDIR=${TMPDIR:-/var/tmp}
+esac
+
+WRKDIR=$TMPDIR/slowmovies
+mkdir -p $WRKDIR
+
 mkdir -p $MOVIE_CATALOG	|| exit 1	# in case it is our first use
 
 cd $MOVIE_LIB
@@ -18,31 +35,29 @@ while read line
 do
 	name=`echo "$line" | cut -f1 -d"	"`
 	date=`echo "$line" | cut -f2 -d"	"`
-	if [ -d catalog/$name -a -s catalog/$name/updated ]
+	if [ -d catalog/"$name" ]
 	then
-		olddate=`sed 1q catalog/$name/updated`
-		if [ -n "$olddate" ]
-		then if [ -a "$olddate" -ge "$date" ]
-			then
-				echo "$prog: no update needed for $name" 1>&2
-				continue
-			fi
+		. catalog/"$name"/info
+		if [ -a "$updated" -ge "$date" ]
+		then
+			echo "$prog: $name	up to date" 1>&2
+			continue
 		fi
 	fi
 
-	echo "$prog: fetching/updating $name" 1>&2
-	mkdir -p catalog/$name	|| exit 3
-	rm -rf catalog/$name/*
+	echo "$prog: $name	fetching..." 1>&2
+	mkdir -p catalog/"$name"	|| exit 3
+	rm -rf catalog/"$name"/*
 
-	rm -rf catalog/$name/frames
-	curl -s "$MOVIE_CATALOG_URL/$name/frames.tar" |
-		(cd catalog/$name; tar xf -)
+	curl -s "$MOVIE_CATALOG_URL/$name/info" -o catalog/"$name"/info || {
+		echo "$prog:	info missing, skipping" 1>&2
+		continue
+	}
 
-	for fn in updated info
-	do
-		curl -s "$MOVIE_CATALOG_URL/$name/$fn" -o catalog/$name/$fn
-	done
+	curl -s "$MOVIE_CATALOG_URL/$name/video.mp" -o catalog/"$name"/video.mp4 || {
+		echo "$prog:	error, skipping" 1>&2
+		continue
+	}
 
-	echo "$prog:	installed, `ls catalog/$name/frames | wc -l` frames" 1>&2
-	ls -l $MOVIE_CATALOG/$name
+	ls -l $MOVIE_CATALOG/"$name"
 done

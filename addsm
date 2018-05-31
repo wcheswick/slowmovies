@@ -97,5 +97,7 @@ chmod +x "$video_info"
 	do
 		. "$i"/info
 		echo "$title	$updated"
-	done
-) >../index
+	done >../index
+	du -sh .
+) 
+
