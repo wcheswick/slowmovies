@@ -9,7 +9,7 @@ usage="$prog m1 m2 ..."
 #	full	full screen
 #
 #	We pick the best we can
-#
+
 
 export PATH=$PATH:$HOME/bin
 
@@ -43,7 +43,7 @@ while [ $# -gt 0 ]
 do
 	movie="$1"
 
-	if [ ! -d "$movie" }
+	if [ ! -d "$movie" ]
 	then
 		echo "$prog: $movie	missing" 1>&2
 		continue
@@ -52,7 +52,7 @@ do
 	echo "$prog: $movie	playing" 1>&2
 	. "$movie"/info
 
-	ffmpeg -i "$movie"/video.* -q:v 2 -v 16 -huffman optimal \
+	ffmpeg -i "$movie"/video.* -q:v 2 -v 16 \
 		$WRKDIR/frame%09d.jpeg &
 
 	if [ ! -n "$spf" ]
@@ -62,7 +62,7 @@ do
 
 	sleep 3		# let ffmpeg start cracking
 
-	fn=`ls $WRKDIR | sed 1q`
+	fn=`cd $WRKDIR; ls | sed 1q`
 	ofn=""
 
 	if [ ! -n $fn ]
@@ -82,7 +82,7 @@ do
 
 		case $style in
 		desktop)
-			xloadimage -fullscreen -onroot -border black $fn
+			xloadimage -fullscreen -onroot -border black $WRKDIR/$fn
 			;;
 		appledesktop)
 osascript <<!EOF
@@ -101,8 +101,11 @@ end tell
 
 		sleep $spf
 		ofn="$fn"
+		fn=`cd $WRKDIR; ls | sed 1q`
 	done
 	wait
 	ls -l $WRKDIR
 	rm -rf $WRKDIR/*
+
+	shift
 done
