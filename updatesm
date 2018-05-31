@@ -38,7 +38,7 @@ do
 	if [ -d catalog/"$name" ]
 	then
 		. catalog/"$name"/info
-		if [ -a "$updated" -ge "$date" ]
+		if [ -n "$updated" -a "$updated" -ge "$date" ]
 		then
 			echo "$prog: $name	up to date" 1>&2
 			continue
@@ -59,7 +59,6 @@ do
 		echo "$prog:	error, skipping" 1>&2
 		continue
 	}
-exit 13
 done
 
 du -sh $MOVIE_CATALOG
