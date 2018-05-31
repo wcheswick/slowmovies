@@ -49,15 +49,17 @@ do
 	mkdir -p catalog/"$name"	|| exit 3
 	rm -rf catalog/"$name"/*
 
-	curl -s "$MOVIE_CATALOG_URL/$name/info" -o catalog/"$name"/info || {
+	urlname=`echo "$name" | sed 's/ /%20/g'`
+	curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/info || {
 		echo "$prog:	info missing, skipping" 1>&2
 		continue
 	}
 
-	curl -s "$MOVIE_CATALOG_URL/$name/video.mp" -o catalog/"$name"/video.mp4 || {
+	curl -s $MOVIE_CATALOG_URL/$urlname/video.mp4 -o catalog/"$name"/video.mp4 || {
 		echo "$prog:	error, skipping" 1>&2
 		continue
 	}
+exit 13
 done
 
 du -sh $MOVIE_CATALOG
