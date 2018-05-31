@@ -1,9 +1,12 @@
 #!/bin/sh
 #
 prog=addmovie
-usage="$prog [-f] m1 m2 ..."
+usage="$prog [-s spf] [-f first_frame] [-n frame_count] title i1 i2 ..."
 #
-#	Add movies to our catalog.  We are given one or more movie
+#	Add a movie named "name" to our catalog.  It consists of one or
+#	more video files found relative to the current directory, and
+#	concatentated together.
+#
 #	files, each of which may have additional information in a .data file.
 #	All are processed into the catalog directory, if forced or the catalog
 #	entry is missing or older.
@@ -16,33 +19,38 @@ WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
 mkdir -p $WRKDIR        || exit 100
 #trap "rm -rf $WRKDIR" EXIT
 
-force=
+spf=10
+start=0
+count=all
+
 while [ $# -gt 0 ]
 do
 	case "$1" in
-	-f)	force=true;	shift;;
+	-s)	shift; spf=$1; shift;;
+	-f)	shift; start=$1; shift;;
+	-n)	shift; count=$1; shift;;
 	-*)	echo "$usage" 1>&2
 		exit 1;;
 	*)	break
 	esac
 done
 
+if [ $# -lt 2]
+then
+	echo "$usage" 1>&2
+	exit 1
+fi
+
+title="$1";	shift
+
+inputlist=""
 while [ $# -gt 0 ]
 do
-	srcpath=$1;	shift
-	case "$srcpath" in
-	*.data)	continue;
-	esac
+	inputlist="$inputlist -i $1"
+done
 
-	echo $srcpath >>/tmp/$prog.log
-
-	srcname=`basename $srcpath`
-	srcdir=`dirname $srcpath`
-	name=`echo $srcname | sed 's/\.[^\.]*$//'`
-	data="$srcdir/$name.data"
-	
-	cataloged_video="$WEB_CATALOG/$name"
-	if [ ! -f "$catalog" -o \
+cataloged_video="$WEB_CATALOG/$title"
+if [ ! -f "$catalog" -o \
 		"$srcpath" -nt "$cataloged_video" -o \
 		"$data" -nt "$cataloged_video" -o \
 		-n "$force" ]
@@ -54,7 +62,7 @@ then
 		rm -rf "$WRKDIR/$name"
 		mkdir -p "$WRKDIR/$name/frames"
 
-		ffmpeg -i $srcpath -q:v 2 -v 16 -huffman optimal \
+		ffmpeg $inputlist -q:v 2 -v 16 -huffman optimal \
 			$WRKDIR/$name/frames/%09d.jpeg
 else
 	echo "$prog:  DEBUG: skipping movie breakout" 1>&2
@@ -105,7 +113,8 @@ fi
 			rm -f $fn
 		done
 	fi
-	date +%s >$cataloged_video/updated
+	updated=`date +%s`
+	echo $updated >$cataloged_video/updated
 
 	i=0
 	ls $WRKDIR/$name/frames/* |
@@ -124,6 +133,10 @@ fi
 
 	(cd $cataloged_video;
 		tar cf frames.tar frames/*
+		(	echo "updated	$updated"
+			echo "title	$title"
+			echo "spf	$spf"
+		) >info
 	)
 
 	echo "$prog:	$name	`ls $WRKDIR/$name/frames | wc -l` frames" 1>&2

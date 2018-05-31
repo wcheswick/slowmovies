@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+prog=installsm
+usage=$prog
+#
+#	Install the slowmovie software on Raspberry Pi running Debian,
+#	FreeBSD machines, and MacOS.
+
+BIN=$HOME/bin
+
+if [ ! -d $BIN ]
+then
+	mkdir -p ${BIN}	|| exit 1
+fi
+
+
+if [ ! -n `which ffmpeg` ]
+then
+	sudo apt-get install -y ffmpeg	|| exit 10
+fi
+
+progs="addmovie fetchslowmovies playsm"
+
+for i in $prog
+do
+	if [ ! -s $BIN/$i -o $i -nt $BIN/$i ]
+	then
+		cp $i $BIN/$i	|| exit 2
+	fi
+done
+

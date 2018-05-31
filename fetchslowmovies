@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+prog=fetchslowmovies
+usage="usage: $prog"
+#
+#	Check the mother site for movies we don't have.
+
+. ./slowdefs
+
+mkdir -p $MOVIE_CATALOG	|| exit 1	# in case it is our first use
+
+cd $MOVIE_LIB
+
+curl -s "$MOVIE_LIST_URL" -o index || exit 2	# our list of movies
+
+cat index |
+while read line
+do
+	name=`echo "$line" | cut -f1 -d"	"`
+	date=`echo "$line" | cut -f2 -d"	"`
+	if [ -d catalog/$name -a -s catalog/$name/updated ]
+	then
+		olddate=`sed 1q catalog/$name/updated`
+		if [ -n "$olddate" ]
+		then if [ -a "$olddate" -ge "$date" ]
+			then
+				echo "$prog: no update needed for $name" 1>&2
+				continue
+			fi
+		fi
+	fi
+
+	echo "$prog: fetching/updating $name" 1>&2
+	mkdir -p catalog/$name	|| exit 3
+	rm -rf catalog/$name/*
+
+	rm -rf catalog/$name/frames
+	curl -s "$MOVIE_CATALOG_URL/$name/frames.tar" |
+		(cd catalog/$name; tar xf -)
+
+	for fn in updated info
+	do
+		curl -s "$MOVIE_CATALOG_URL/$name/$fn" -o catalog/$name/$fn
+	done
+
+	echo "$prog:	installed, `ls catalog/$name/frames | wc -l` frames" 1>&2
+	ls -l $MOVIE_CATALOG/$name
+done

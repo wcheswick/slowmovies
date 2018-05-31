@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+prog=playsm
+usage="$prog m1 m2 ..."
+#
+#	Play a slow movie on the current machine
+
+
+. ./slowdefs
+
+cd $MOVIE_CATALOG
+
+while [ $# -gt 0 ]
+do
+	movie=$1
+
+	if [ ! -d $movie }
+	then
+		echo "$prog: movie missing from $MOVIE_LIB: $movie" 1>&2
+		continue
+	fi
+
+	spf=`sed 1q $movie/info | grep fps | cut -f2 -d"	"`
+	case "$spf" in
+	[0-9]*)	;;
+	*)	spf=10
+	esac
+
+
+done
