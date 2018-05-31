@@ -21,7 +21,7 @@ fi
 
 progs="addmovie fetchslowmovies playsm"
 
-for i in $prog
+for i in $progs
 do
 	if [ ! -s $BIN/$i -o $i -nt $BIN/$i ]
 	then
