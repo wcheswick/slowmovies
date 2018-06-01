@@ -34,8 +34,7 @@ FreeBSD)
 esac
 
 WRKDIR=$TMPDIR/slowmovies
-mkdir -p $WRKDIR
-rm -rf $WRKDIR/*
+rm -rf $WRKDIR 2>/dev/null
 
 cd $MOVIE_CATALOG
 
@@ -57,13 +56,22 @@ do
 	fi
 
 	echo "`date +%'b %e %H:%m:%S'`	$spf spf	$title" | tee -a $LOG 
-	
+
+	mkdir -p $WRKDIR 2>/dev/null
+
 	nice ffmpeg -i "$movie"/video.* -q:v 2 -v 16 \
 		$WRKDIR/frame%09d.jpeg &
 
-	sleep 1		# let ffmpeg start cracking
-
-	fn=`cd $WRKDIR; ls | sed 1q`
+	for i in 1 2 3 4 5 6 7 8 9
+	do
+		fn=`cd $WRKDIR; ls | sed 1q`
+		case "$fn" in
+		"")	sleep 1
+			continue;;
+		*)
+			break
+		esac
+	done
 
 	if [ ! -n $WRKDIR/$fn ]
 	then
@@ -99,8 +107,8 @@ end tell
 		fn=`cd $WRKDIR; ls | sed 1q`
 	done
 	wait
-	ls -l $WRKDIR
-	rm -rf $WRKDIR/*
+
+	rm -rf $WRKDIR
 
 	shift
 done

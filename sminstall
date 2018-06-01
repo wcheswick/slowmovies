@@ -41,39 +41,33 @@ do
 	fi
 done
 
-if [ ! -s $HOME/.xinitrc ]
-then
-	cat <<!EOF >$HOME/.xinitrc
+
+# Set up .xinitrc to start up things
+
+cat <<!EOF >$HOME/.xinitrc
 #!/bin/sh
 
-userresources=$HOME/.Xresources
-usermodmap=$HOME/.Xmodmap
-sysresources=/usr/local/lib/X11/xinit/.Xresources
-sysmodmap=/usr/local/lib/X11/xinit/.Xmodmap
-
-if [ -f $sysresources ]; then
-    xrdb -merge $sysresources
-fi
-
-if [ -f $sysmodmap ]; then
-    xmodmap $sysmodmap
-fi
-
-if [ -f $userresources ]; then
-    xrdb -merge $userresources
-fi
-
-if [ -f $usermodmap ]; then
-    xmodmap $usermodmap
-fi
-
 xsetroot -solid darkblue -cursor_name top_left_arrow
+xset s off
+
+sleep 2; playallsm &
+
 exec w9wm -term xterm
 !EOF
-fi
 
-grep startx $HOME/.profile >/dev/null ||
-	echo startx >>$HOME/.profile
+
+# add x start to .profile
+
+if ! grep startx .profile >/dev/null
+then
+	cat <<!EOF >>.profile
+
+export  PATH=$PATH:$HOME/bin
+
+case `tty` in
+/dev/tty1)      startx -- -nocursor;;
+esac
+!EOF
 
 . slowdefs
 
