@@ -93,12 +93,4 @@ updated=`date +%s`
 !EOF
 chmod +x "$video_info"
 
-# generate new catalog index
-(cd $WEB_CATALOG;
-	for i in *
-	do
-		. "$i"/info
-		echo "$title	$updated"
-	done >../index
-	(cd ..; du -sh catalog)
-) 
+indexsm

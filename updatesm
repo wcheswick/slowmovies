@@ -4,6 +4,8 @@ prog=fetchslowmovies
 usage="usage: $prog"
 #
 #	Check the mother site for movies we don't have.
+#
+#	XXX doesn't delete old movies
 
 export PATH=$PATH:$HOME/bin
 

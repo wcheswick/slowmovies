@@ -16,3 +16,12 @@ cd slowmovies/
 RPi:
 
 For boot options, change to boot to text console, auto login as pi
+by editing /etc/systemd/system/autologin@.service
+adding ExecStart just after [Service]:
+
+
+[Service]
+# the VT is cleared by TTYVTDisallocate
+ExecStart=-/sbin/agetty --autologin pi  --noclear %I $TERM
+Type=idle
+

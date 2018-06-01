@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+prog=indexsm
+usage="$prog"
+#
+#	Update the index of the current slow movies
+
+WEB_CATALOG=/r/media/slowmovies/catalog
+
+cd $WEB_CATALOG
+
+for i in *
+do
+	. "$i"/info
+	echo "$title	$updated"
+done >../index
+
+cd ..
+du -sh catalog

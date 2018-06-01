@@ -49,40 +49,34 @@ do
 		continue
 	fi
 
-	echo "$prog: $movie	playing" 1>&2
 	. "$movie"/info
-
-	ffmpeg -i "$movie"/video.* -q:v 2 -v 16 \
-		$WRKDIR/frame%09d.jpeg &
 
 	if [ ! -n "$spf" ]
 	then
 		spf=10		# default six frames per minute
 	fi
 
-	sleep 3		# let ffmpeg start cracking
+	echo "`date +%'b %e %H:%m:%S'`	$spf spf	$title" | tee -a $LOG 
+	
+	nice ffmpeg -i "$movie"/video.* -q:v 2 -v 16 \
+		$WRKDIR/frame%09d.jpeg &
+
+	sleep 1		# let ffmpeg start cracking
 
 	fn=`cd $WRKDIR; ls | sed 1q`
-	ofn=""
 
-	if [ ! -n $fn ]
+	if [ ! -n $WRKDIR/$fn ]
 	then
 		echo "$prog:	apparent ffmpeg problem, aborting" 1>&2
 		exit 2
 	fi
 
-	while [ -n "$fn" ]
+	while [ -n "$WRKDIR/$fn" ]
 	do
-		if [ -n "$ofn" ]
-		then		# ditch previous one
-			rm -f $WRKDIR/$ofn	|| {
-				echo "$prog:	frame disappeared: $ofn" 1>&2
-			}
-		fi
-
 		case $style in
 		desktop)
-			xloadimage -fullscreen -onroot -border black $WRKDIR/$fn
+			xloadimage -fullscreen -onroot -quiet \
+				-border black $WRKDIR/$fn
 			;;
 		appledesktop)
 osascript <<!EOF
@@ -100,7 +94,8 @@ end tell
 		esac
 
 		sleep $spf
-		ofn="$fn"
+
+		rm -f "$WRKDIR/$fn"
 		fn=`cd $WRKDIR; ls | sed 1q`
 	done
 	wait

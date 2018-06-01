@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+prog=playallsm
+usage="$prog"
+#
+#	Play all our slow movies, in random order
+
+
+export PATH=$PATH:$HOME/bin
+
+. slowdefs
+
+cd $MOVIE_CATALOG
+
+ls |	# randomize the file list
+awk '	BEGIN {x = srand() }
+	{print rand() "	" $0}' |
+sort -n |
+cut -d'	' -f2- |
+while read name
+do
+	playsm "$name"
+done
