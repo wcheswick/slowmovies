@@ -1,0 +1,18 @@
+apt-get upgrade
+apt-get update
+sudo apt autoremove
+
+raspi-conf:
+host name
+wifi?
+maybe audio
+maybe ssh
+localization stuff, the usual
+
+git clone https://github.com/wcheswick/slowmovies.git
+cd slowmovies/
+./installsm	# note leading period
+
+RPi:
+
+For boot options, change to boot to text console, auto login as pi

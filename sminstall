@@ -13,15 +13,17 @@ then
 	mkdir -p ${BIN}	|| exit 1
 fi
 
-for p in ffmpeg xloadimage
+for p in ffmpeg xloadimage w9wm
 do
 	if [ ! -n `which $p` ]
 	then
 		case `uname` in
 		Linux)
-			sudo apt-get install -y $p	|| exit 10;;
+			sudo apt-get install -y $p	|| exit 10
+			;;
 		FreeBSD)
-			sudo sudo pkg -y install $p;;
+			sudo sudo pkg -y install $p
+			;;
 		Darwin)
 			# stub
 			;;
