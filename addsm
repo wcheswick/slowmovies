@@ -54,7 +54,7 @@ do
 done
 
 cataloged_video="$WEB_CATALOG/$title"
-video_info="$cataloged_video"/info
+video_info="$cataloged_video/info"
 
 if [ -d "$cataloged_video" ]
 then
@@ -81,6 +81,8 @@ ffmpeg $inputlist -q:v 2 -v 16 -huffman optimal "$cataloged_video/video.mp4" || 
 
 
 # generate executable shell variables for relevant information
+
+set -x
 
 cat <<!EOF >"$video_info"
 title='$title'
