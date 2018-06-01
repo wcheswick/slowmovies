@@ -68,6 +68,7 @@ case `tty` in
 /dev/tty1)      startx -- -nocursor;;
 esac
 !EOF
+fi
 
 . slowdefs
 
