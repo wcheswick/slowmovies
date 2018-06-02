@@ -95,8 +95,6 @@ ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
 
 # generate executable shell variables for relevant information
 
-set -x
-
 cat <<!EOF >"$video_info"
 title='$title'
 spf=$spf

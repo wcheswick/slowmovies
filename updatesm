@@ -9,7 +9,7 @@ usage="usage: $prog"
 
 export PATH=$PATH:$HOME/bin
 
-. ./slowdefs
+. slowdefs
 
 cd $MOVIE_LIB	|| exit 1
 
@@ -20,9 +20,9 @@ while read line
 do
 	name=`echo "$line" | cut -f1 -d"	"`
 	date=`echo "$line" | cut -f2 -d"	"`
-	if [ -d catalog/"$name" ]
+	if [ -d "catalog/$name" ]
 	then
-		. catalog/"$name"/info
+		. ./"catalog/$name/info"
 		if [ -n "$updated" -a "$updated" -ge "$date" ]
 		then
 			echo "$prog: $name	up to date" 1>&2
@@ -31,7 +31,7 @@ do
 	fi
 
 	echo "$prog: $name	fetching..." 1>&2
-	mkdir -p catalog/"$name"	|| exit 3
+	mkdir -p "catalog/$name"	|| exit 3
 	rm -rf catalog/"$name"/*
 
 	urlname=`echo "$name" | sed 's/ /%20/g'`

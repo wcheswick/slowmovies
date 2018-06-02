@@ -29,7 +29,7 @@ TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 ./addsm "EWR to ORD test"		$TIME_LAPSE/ewr-ord-test.mov
 ./addsm "Go west"			$TIME_LAPSE/gowest.mov
 ./addsm "East from Key West"		$TIME_LAPSE/key-west-east.mov
-./addsm "East from Key West 2?"		$TIME_LAPSE/keys-eastbound.mov
+./addsm "East from Key West second"	$TIME_LAPSE/keys-eastbound.mov
 ./addsm "A lava lamp"			$TIME_LAPSE/lavalamp.mpeg
 #./addsm "Moonrise in Nantucket"		$TIME_LAPSE/moonrise.mpeg
 ./addsm "ORD to SFO test"		$TIME_LAPSE/ord-sfo-test.mov
