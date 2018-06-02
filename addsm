@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 prog=addmovie
-usage="$prog [-s spf] [-f first_frame] [-n frame_count] title i1 i2 ..."
+usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] title i1 i2 ..."
 #
 #	Add a movie named "name" to our catalog.  It consists of one or
 #	more video files found relative to the current directory, and
@@ -14,7 +14,7 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] title i1 i2 ..."
 #	Careful with those quotes: these titles usually contain spaces. Tabs
 #	are our field separators.
 #
-###	-f	force rebuild of given movies
+#	-F	force rebuild of given movies
 
 WEB_CATALOG=/r/media/slowmovies/catalog
 
@@ -25,12 +25,14 @@ WEB_CATALOG=/r/media/slowmovies/catalog
 spf=10
 start=0
 count=all
+force=
 
 while [ $# -gt 0 ]
 do
 	case "$1" in
 	-s)	shift; spf=$1; shift;;
 	-f)	shift; start=$1; shift;;
+	-F)	shift; force=true;;
 	-n)	shift; count=$1; shift;;
 	-*)	echo "$usage" 1>&2
 		exit 1;;
@@ -56,7 +58,7 @@ done
 cataloged_video="$WEB_CATALOG/$title"
 video_info="$cataloged_video/info"
 
-if [ -d "$cataloged_video" ]
+if [ ! -n "$force" -a -d "$cataloged_video" ]
 then
 	if [ ! -s "$video_info" ]
 	then
@@ -73,11 +75,22 @@ mkdir -p "$cataloged_video"
 #rm -f "$video_info"
 
 echo "Processing	$title ..." 1>&2
-ffmpeg $inputlist -q:v 2 -v 16 -huffman optimal "$cataloged_video/video.mp4" || {
-	rm -rf "$cataloged_video"
-	echo "	error, aborting" 1>&2
-	exit 10
-}
+ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
+	-vf "drawtext=text='Through the Adirondacks': \
+		fontcolor=white: fontsize=14: \
+		box=1: boxcolor=black@0.5: \
+		fix_bounds=1: \
+		boxborderw=5: x=5: y=h-18:, \
+	drawtext=text='frame %{n}': \
+		fontcolor=white: fontsize=12: \
+		box=1: boxcolor=black@0.5: \
+		fix_bounds=1: \
+		boxborderw=5: x=w-tw-5: y=h-14:" \
+	"$cataloged_video/video.mp4" || {
+		rm -rf "$cataloged_video"
+		echo "	error, aborting" 1>&2
+		exit 10
+	}
 
 
 # generate executable shell variables for relevant information

@@ -60,16 +60,6 @@ do
 	mkdir -p $WRKDIR 2>/dev/null
 
 	nice ffmpeg -i "$movie"/video.* -q:v 2 -v 16 \
-		-vf "drawtext=text='Through the Adirondacks': \
-			fontcolor=white: fontsize=14: \
-			box=1: boxcolor=black@0.5: \
-			fix_bounds=1: \
-			boxborderw=5: x=5: y=h-18:, \
-		drawtext=text='frame %{n}': \
-			fontcolor=white: fontsize=12: \
-			box=1: boxcolor=black@0.5: \
-			fix_bounds=1: \
-			boxborderw=5: x=w-tw-5: y=h-14:" \
 		$WRKDIR/frame%09d.jpeg &
 
 	for i in 1 2 3 4 5 6 7 8 9
