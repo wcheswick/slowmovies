@@ -60,7 +60,7 @@ exec w9wm -term xterm
 
 if ! grep startx $HOME/.profile >/dev/null
 then
-	cat <<!EOF >>$HOME/.profile
+	cat <<!EOF >>.profile
 
 export  PATH=$PATH:$HOME/bin
 
