@@ -1,19 +1,64 @@
 #!/bin/sh
 #
 prog=playsm
-usage="$prog m1 m2 ..."
+usage="$prog [-l] [-r] {[-a] | m1 m2 ...| -i i1 i2 ...}"
 #
 #	Play a slow movie on the current machine.  There are a few styles:
 #
 #	desktop	desktop backround (x root, or equivalent)
 #	full	full screen
 #
-#	We pick the best we can
+#	We pick the best we can.
+#
+#	-a	play all slowmovies
+#	-l	list available slowmovies, and exit
+#	-r	play desired movies in random order
 
 
 export PATH=$PATH:$HOME/bin
 
 . slowdefs
+
+WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
+rm -rf $WRKDIR 2>/dev/null
+mkdir -p $WRKDIR        || exit 100
+
+cd $MOVIE_CATALOG
+	grep 'updated=[0-9]' */info |
+	sed 's:/.*$::' >$WRKDIR/available_movies
+
+>$WRKDIR/toplay
+
+randomize=
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-a)	cp $WRKDIR/available_movies $WRKDIR/toplay
+		shift;;
+	-i)	shift
+		for i in $*
+		do
+			movie_name=`sed -n ${i}p <$WRKDIR/available_movies`
+			if [ -n "$movie_name" ]
+			then
+				echo "$movie_name" >>$WRKDIR/toplay
+			fi
+		done
+		break;;
+	-l)	nl <$WRKDIR/available_movies
+		exit 0
+		;;
+	-r)	randomize=true;
+		shift;;
+	-*)	echo "$usage" 1>&2
+		exit 1;;
+	*)	for i in "$@"
+		do
+			echo "$i" >>$WRKDIR/toplay
+		done
+		break
+	esac
+done
 
 case `uname` in
 Linux)
@@ -33,15 +78,31 @@ FreeBSD)
 	style=desktop
 esac
 
-WRKDIR=$TMPDIR/slowmovies
-rm -rf $WRKDIR 2>/dev/null
+if which xrdb >/dev/null
+then
+	screen=`xrdb -symbols -screen |
+		egrep 'DWIDTH=|DHEIGHT=' |
+		tr '\n' ' ' |
+		sed 's/-[^=]*=//g'`
+	W=`echo $screen | cut -f1 -d" "`
+	H=`echo $screen | cut -f2 -d" "`
+fi
 
 cd $MOVIE_CATALOG
 
-while [ $# -gt 0 ]
+if [ -n $randomize ]
+then
+	awk <$WRKDIR/toplay '
+	BEGIN {x = srand() }
+		{print rand() "	" $0}
+	' |
+	sort -n |
+	cut -d'	' -f2-
+else
+	cat $WRKDIR/toplay
+fi |
+while read movie
 do
-	movie="$1"
-
 	if [ ! -d "$movie" ]
 	then
 		echo "$prog: $movie	missing" 1>&2
@@ -57,37 +118,34 @@ do
 
 	echo "`date +%'b %e %H:%m:%S'`	$spf spf	$title" | tee -a $LOG 
 
-	mkdir -p $WRKDIR 2>/dev/null
+	ffmpeg -i "$movie"/video.* -q:v 2 \
+		-v error $WRKDIR/frame%09d.jpeg
 
-	nice ffmpeg -i "$movie"/video.* -q:v 2 -v 16 $WRKDIR/frame%09d.jpeg &
-
-	for i in 1 2 3 4 5 6 7 8 9
+	ls $WRKDIR/frame*.* |
+	case "$first" in		# skip leading frames, if desired
+	"")	cat -;;
+	0)	cat -;;
+	*)	sed 1,${first}d
+	esac |
+	case $count in		# limit frame count, if desired
+	"")	cat -;;
+	all)	cat -;;
+	*)	sed -n 1,${count}p
+	esac |
+	while read fn
 	do
-		fn=`cd $WRKDIR; ls | sed 1q`
-		case "$fn" in
-		"")	sleep 1
-			continue;;
-		*)
-			break
-		esac
-	done
+echo fn is $fn
+continue
 
-	if [ ! -n $WRKDIR/$fn ]
-	then
-		echo "$prog:	apparent ffmpeg problem, aborting" 1>&2
-		exit 2
-	fi
 
-	while [ -n "$WRKDIR/$fn" ]
-	do
-size=`file $WRKDIR/$fn | awk '{print $(NF-2)}'`
-bytes=`ls -l $WRKDIR/$fn | awk '{print $5}'`
-		echo "$prog: playing $WRKDIR/$fn	$size	$bytes" >>/tmp/$prog
-cp $WRKDIR/$fn /tmp/last.jpeg
+size=`file $fn | awk '{print $(NF-2)}'`
+bytes=`ls -l $fn | awk '{print $5}'`
+		echo "$prog: playing $fn	$size	$bytes" >>/tmp/$prog
+cp $fn /tmp/last.jpeg
 
 		case $style in
 		desktop)
-			display -window root -backdrop $WRKDIR/$fn
+			display -resize ${W}x${H} -backdrop -window root $fn
 			;;
 		appledesktop)
 osascript <<!EOF
@@ -100,17 +158,13 @@ end tell
 !EOF
 			;;
 		full)
-			xloadimage -fullscreen -border black $fn
+			#  not yet 
 			;;
 		esac
 
 		sleep $spf
-
 		rm -f "$WRKDIR/$fn"
-		fn=`cd $WRKDIR; ls | sed 1q`
 	done
-	wait
-
 	rm -rf $WRKDIR
 
 	shift

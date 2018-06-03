@@ -31,7 +31,7 @@ do
 	fi
 done
 
-progs="addsm updatesm playsm playallsm indexsm slowdefs"
+progs="addsm updatesm playsm indexsm slowdefs"
 
 for i in $progs
 do
@@ -52,7 +52,7 @@ then
 xsetroot -solid darkblue -cursor_name top_left_arrow
 xset s off
 
-sleep 2; playallsm &
+sleep 2; playsm -r -a &
 
 exec w9wm -term xterm
 !EOF
