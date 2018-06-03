@@ -134,10 +134,6 @@ do
 	esac |
 	while read fn
 	do
-echo fn is $fn
-continue
-
-
 size=`file $fn | awk '{print $(NF-2)}'`
 bytes=`ls -l $fn | awk '{print $5}'`
 		echo "$prog: playing $fn	$size	$bytes" >>/tmp/$prog

@@ -18,10 +18,6 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] title i1 i2 ..."
 
 WEB_CATALOG=/r/media/slowmovies/catalog
 
-#WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
-#mkdir -p $WRKDIR        || exit 100
-#trap "rm -rf $WRKDIR" EXIT
-
 spf=10
 first=0
 count=all
