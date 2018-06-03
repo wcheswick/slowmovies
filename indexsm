@@ -11,9 +11,9 @@ cd $WEB_CATALOG
 
 for i in *
 do
-	. "$i"/info
-	echo "$title	$updated"
+	if [ -s "$i"/info ]
+	then
+		. "$i"/info	|| continue
+		echo "$title	$updated"
+	fi
 done >../index
-
-cd ..
-du -sh catalog

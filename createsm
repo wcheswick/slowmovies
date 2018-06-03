@@ -1,10 +1,39 @@
-force=-F
+#!/bin/sh
+#
+prog=createsm
+usage="$prog [-F]"
+#
+#	(re)install all our movies, or the ones that are new or changed.
+#
+#	-F	force rebuild of all
+
+force=
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-F)	shift; force="-F";;
+	-*)	echo "$usage" 1>&2
+		exit 1;;
+	*)	break
+	esac
+done
+
+if [ $# -gt 0 ]
+then
+	echo "$usage" 1>&2
+	exit 1
+fi
+
+if [ -n "$force" ]
+then
+	cd /r/media/slowmovies/catalog	|| exit 10
+	rm -f */info
+	echo "$prog: all slow movies disabled" 1>&2
+fi
 
 SMSRC=/r/media/slowmovies/src
-./addsm $force "NJ-approved firework"	$SMSRC/NJFireworksLarge.mp4
-./addsm $force "2011 fireworks"	$SMSRC/2011fireworks.mp4
-
-exit 13
+addsm -f 200 "NJ-approved firework"	$SMSRC/NJFireworksLarge.mp4
+addsm "2011 fireworks"		$SMSRC/2011fireworks.mp4
 
 SLOWSTAGE=$HOME/tmp/slowstage
 ./addsm "Across the Sierras"	$SLOWSTAGE/AcrossTheSierras/*.mp4
@@ -18,7 +47,9 @@ SLOWSTAGE=$HOME/tmp/slowstage
 ./addsm "Into Utah"		$SLOWSTAGE/ToUtah/*.mp4
 
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
-./addsm "Through the Adirondacks"	$TIME_LAPSE/adirondacks.mov
+# long black frames at start:
+#./addsm "Through the Adirondacks"	$TIME_LAPSE/adirondacks.mov
+
 #[mpeg1video @ 0x808c18f00] ac-tex damaged at 11 5
 #[mpeg1video @ 0x808c18f00] Warning MVs not available
 #./addsm "At the beach"			$TIME_LAPSE/beach.mpg

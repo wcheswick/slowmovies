@@ -23,7 +23,7 @@ WEB_CATALOG=/r/media/slowmovies/catalog
 #trap "rm -rf $WRKDIR" EXIT
 
 spf=10
-start=0
+first=0
 count=all
 force=
 
@@ -31,7 +31,7 @@ while [ $# -gt 0 ]
 do
 	case "$1" in
 	-s)	shift; spf=$1; shift;;
-	-f)	shift; start=$1; shift;;
+	-f)	shift; first=$1; shift;;
 	-F)	shift; force=true;;
 	-n)	shift; count=$1; shift;;
 	-*)	echo "$usage" 1>&2
@@ -62,7 +62,7 @@ if [ ! -n "$force" -a -d "$cataloged_video" ]
 then
 	if [ ! -s "$video_info" ]
 	then
-		echo "Info missing rebuilding	$title ..." 1>&2
+		echo "$prog:	$title	'info' missing," 1>&2
 		rm -rf "$cataloged_video"
 	else
 		echo "Skipping	$title ..." 1>&2
@@ -74,18 +74,19 @@ mkdir -p "$cataloged_video"
 
 #rm -f "$video_info"
 
-echo "Processing	$title ..." 1>&2
-ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
-	-vf "drawtext=text='Through the Adirondacks': \
-		fontcolor=white: fontsize=14: \
+echo "$prog:	$title		building ..." 1>&2
+#ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
+ffmpeg $inputlist -y -v 16  \
+	-vf "drawtext=text='$title': \
+		fontcolor=white: fontsize=20: \
 		box=1: boxcolor=black@0.5: \
 		fix_bounds=1: \
-		boxborderw=5: x=5: y=h-18:, \
+		boxborderw=5: x=5: y=h-22:, \
 	drawtext=text='frame %{n}': \
-		fontcolor=white: fontsize=12: \
+		fontcolor=white: fontsize=16: \
 		box=1: boxcolor=black@0.5: \
 		fix_bounds=1: \
-		boxborderw=5: x=w-tw-5: y=h-14:" \
+		boxborderw=5: x=w-tw-5: y=h-18:" \
 	"$cataloged_video/video.mp4" || {
 		rm -rf "$cataloged_video"
 		echo "	error, aborting" 1>&2
@@ -98,7 +99,7 @@ ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
 cat <<!EOF >"$video_info"
 title='$title'
 spf=$spf
-start=$start
+first=$first
 count=$count
 updated=`date +%s`
 !EOF

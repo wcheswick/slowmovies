@@ -1,13 +1,30 @@
 #!/bin/sh
 #
-prog=fetchslowmovies
-usage="usage: $prog"
+prog=updatesm
+usage="usage: $prog [-n]"
 #
 #	Check the mother site for movies we don't have.
 #
 #	XXX doesn't delete old movies
 
 export PATH=$PATH:$HOME/bin
+
+noupdate=
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-n)	shift; noupdate=true;;
+	-*)	echo "$usage" 1>&2
+		exit 1;;
+	*)	break
+	esac
+done
+
+if [ $# -gt 0 ]
+then
+	echo "$usage" 1>&2
+	exit 1
+fi
 
 . slowdefs
 
@@ -28,6 +45,12 @@ do
 			echo "$prog: $name	up to date" 1>&2
 			continue
 		fi
+	fi
+
+	if [ -n "$noupdate" ]
+	then
+		echo "$prog: $name	needs updating" 1>&2
+		continue
 	fi
 
 	echo "$prog: $name	fetching..." 1>&2

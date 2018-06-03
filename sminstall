@@ -13,7 +13,7 @@ then
 	mkdir -p ${BIN}	|| exit 1
 fi
 
-for p in ffmpeg xloadimage w9wm xterm
+for p in ffmpeg imagemagick w9wm xterm
 do
 	if [ ! -n `which $p` ]
 	then
@@ -44,7 +44,9 @@ done
 
 # Set up .xinitrc to start up things
 
-cat <<!EOF >$HOME/.xinitrc
+if ! egrep 'playsm|playallsm' $HOME/.xinitrc >/dev/null
+then
+	cat <<!EOF >$HOME/.xinitrc
 #!/bin/sh
 
 xsetroot -solid darkblue -cursor_name top_left_arrow
@@ -54,7 +56,7 @@ sleep 2; playallsm &
 
 exec w9wm -term xterm
 !EOF
-
+fi
 
 # add x start to .profile
 

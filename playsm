@@ -59,8 +59,7 @@ do
 
 	mkdir -p $WRKDIR 2>/dev/null
 
-	nice ffmpeg -i "$movie"/video.* -q:v 2 -v 16 \
-		$WRKDIR/frame%09d.jpeg &
+	nice ffmpeg -i "$movie"/video.* -q:v 2 -v 16 $WRKDIR/frame%09d.jpeg &
 
 	for i in 1 2 3 4 5 6 7 8 9
 	do
@@ -81,10 +80,14 @@ do
 
 	while [ -n "$WRKDIR/$fn" ]
 	do
+size=`file $WRKDIR/$fn | awk '{print $(NF-2)}'`
+bytes=`ls -l $WRKDIR/$fn | awk '{print $5}'`
+		echo "$prog: playing $WRKDIR/$fn	$size	$bytes" >>/tmp/$prog
+cp $WRKDIR/$fn /tmp/last.jpeg
+
 		case $style in
 		desktop)
-			xloadimage -fullscreen -onroot -quiet \
-				-border black $WRKDIR/$fn
+			display -window root -backdrop $WRKDIR/$fn
 			;;
 		appledesktop)
 osascript <<!EOF
