@@ -50,9 +50,16 @@ then
 #!/bin/sh
 
 xsetroot -solid darkblue -cursor_name top_left_arrow
-xset s off
+xset s off -dpms
 
-sleep 2; playsm -r -a &
+# SM="NJ-approved firework"
+
+if [ -n "$SM" ]
+then
+        playsm "$SM" &
+else
+        playsm -r -a &
+fi
 
 exec w9wm -term xterm
 !EOF
