@@ -43,7 +43,7 @@ cut -f1 -d'	' <index |
 while read name
 do
 	echo "$prog:	removing old movie:	$name" 1>&2
-	echo rm -rf catalog/"$name"
+	rm -rf catalog/"$name"
 done
 
 cat index |
