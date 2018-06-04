@@ -114,13 +114,13 @@ do
 		spf=10		# default six frames per minute
 	fi
 
-	lastcached=`sed 1q lastcached 2>/dev/null`
+	lastcached=`sed 1q $WRKDIR/lastcached 2>/dev/null`
 	if [ ! -n "$lastcached" -o "$lastcached" != "$movie" ]
 	then
 # -codec copy 
 		ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
 				$CACHE/frame%09d.jpeg 2>/dev/null &&
-			echo "$movie" >lastcached
+			echo "$movie" >$WRKDIR/lastcached
 	fi
 
 	total_frames=`(cd $CACHE; ls | wc -l | tr -d ' ')`

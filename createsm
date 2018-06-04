@@ -39,6 +39,7 @@ SLOWSTAGE=$HOME/tmp/slowstage
 ./addsm -f 2 "Across the Sierras"	$SLOWSTAGE/AcrossTheSierras/*.mp4
 ./addsm "Asilomar"		$SLOWSTAGE/Asilomar/*.mp4
 ./addsm "Asilomar Beach"	$SLOWSTAGE/AsilomarBeach/*.mp4
+# nice morning view:
 ./addsm "Basin and Range"	$SLOWSTAGE/BasinAndRange/*.mp4
 ./addsm "Hana Road westbound"	$SLOWSTAGE/HanaRoadWB/*.avi
 ./addsm "It is flat"		$SLOWSTAGE/ItsFlat/*.mp4
