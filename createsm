@@ -36,7 +36,7 @@ addsm -f 200 "NJ-approved firework"	$SMSRC/NJFireworksLarge.mp4
 addsm "2011 fireworks"		$SMSRC/2011fireworks.mp4
 
 SLOWSTAGE=$HOME/tmp/slowstage
-./addsm "Across the Sierras"	$SLOWSTAGE/AcrossTheSierras/*.mp4
+./addsm -f 2 "Across the Sierras"	$SLOWSTAGE/AcrossTheSierras/*.mp4
 ./addsm "Asilomar"		$SLOWSTAGE/Asilomar/*.mp4
 ./addsm "Asilomar Beach"	$SLOWSTAGE/AsilomarBeach/*.mp4
 ./addsm "Basin and Range"	$SLOWSTAGE/BasinAndRange/*.mp4
@@ -48,7 +48,7 @@ SLOWSTAGE=$HOME/tmp/slowstage
 
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 # long black frames at start:
-#./addsm "Through the Adirondacks"	$TIME_LAPSE/adirondacks.mov
+./addsm "Through the Adirondacks"	$TIME_LAPSE/adirondacks.mov
 
 #[mpeg1video @ 0x808c18f00] ac-tex damaged at 11 5
 #[mpeg1video @ 0x808c18f00] Warning MVs not available
@@ -62,18 +62,21 @@ TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 ./addsm "East from Key West"		$TIME_LAPSE/key-west-east.mov
 ./addsm "East from Key West second"	$TIME_LAPSE/keys-eastbound.mov
 ./addsm "A lava lamp"			$TIME_LAPSE/lavalamp.mpeg
+# poor video:
 #./addsm "Moonrise in Nantucket"		$TIME_LAPSE/moonrise.mpeg
 ./addsm "ORD to SFO test"		$TIME_LAPSE/ord-sfo-test.mov
 ./addsm "Restroom"			$TIME_LAPSE/rest60.mpg
-./addsm "Reverse"			$TIME_LAPSE/reverse.mov
+# a test, but not interesting:
+#./addsm "Reverse"			$TIME_LAPSE/reverse.mov
 ./addsm "Slow"				$TIME_LAPSE/slow.mov
 ./addsm "Fast solitaire, slowly"	$TIME_LAPSE/solitaire.mov
 
 ARCHIVES=$HOME/tmp/slowstage/archives
-./addsm "Sand castle 0"			$ARCHIVES/castle0.mv
-./addsm "Sand castle 1"			$ARCHIVES/castle1.mv
+# really poor video, both seem identical
+#./addsm -f 550 "Sand castle 0"			$ARCHIVES/castle0.mv
+#./addsm "Sand castle 1"			$ARCHIVES/castle1.mv
 
 # windowseat
-WINDOWSEAT=$HOME/tmp/slowstage/windowseat
+WINDOWSEAT=$HOME/tmp/slowstage/windowseat/SFO-EWR
 # not loaded yet
-#./addsm "SFO-EWR, the windowseat"	$WINDOWSEAT/GOPR2216.MP4 $WINDOWSEAT/GO0*
+./addsm "SFO-EWR, the windowseat"	$WINDOWSEAT/GOPR2216.MP4 $WINDOWSEAT/GO0*

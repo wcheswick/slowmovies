@@ -32,6 +32,20 @@ cd $MOVIE_LIB	|| exit 1
 
 curl -s "$MOVIE_INDEX_URL" -o index || exit 2	# our list of movies
 
+# find movies that have been removed
+
+TMP=/tmp/$prog.catalog
+ls -d catalog/* 2>/dev/null |
+	sed 's:catalog/::' >$TMP
+
+cut -f1 -d'	' <index |
+	comm -23 $TMP - |
+while read name
+do
+	echo "$prog:	removing old movie:	$name" 1>&2
+	echo rm -rf catalog/"$name"
+done
+
 cat index |
 while read line
 do

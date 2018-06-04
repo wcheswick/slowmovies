@@ -19,9 +19,37 @@ export PATH=$PATH:$HOME/bin
 
 . slowdefs
 
+case `uname` in
+Linux)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=desktop
+	;;
+Darwin)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=appledesktop
+	;;
+FreeBSD)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=desktop
+	;;
+*)		# just guessing here
+	TMPDIR=${TMPDIR:-/var/tmp}
+	style=desktop
+esac
+
 WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
-rm -rf $WRKDIR 2>/dev/null
-mkdir -p $WRKDIR        || exit 100
+CACHE=$WRKDIR/cache
+mkdir -p $CACHE        || exit 100
+
+if which xrdb >/dev/null
+then
+	screen=`xrdb -symbols -screen |
+		egrep 'DWIDTH=|DHEIGHT=' |
+		tr '\n' ' ' |
+		sed 's/-[^=]*=//g'`
+	W=`echo $screen | cut -f1 -d" "`
+	H=`echo $screen | cut -f2 -d" "`
+fi
 
 cd $MOVIE_CATALOG
 	grep 'updated=[0-9]' */info |
@@ -60,47 +88,17 @@ do
 	esac
 done
 
-case `uname` in
-Linux)
-	TMPDIR=${TMPDIR:-/var/tmp}
-	style=desktop
-	;;
-Darwin)
-	TMPDIR=${TMPDIR:-/var/tmp}
-	style=appledesktop
-	;;
-FreeBSD)
-	TMPDIR=${TMPDIR:-/var/tmp}
-	style=desktop
-	;;
-*)		# just guessing here
-	TMPDIR=${TMPDIR:-/var/tmp}
-	style=desktop
-esac
-
-if which xrdb >/dev/null
-then
-	screen=`xrdb -symbols -screen |
-		egrep 'DWIDTH=|DHEIGHT=' |
-		tr '\n' ' ' |
-		sed 's/-[^=]*=//g'`
-	W=`echo $screen | cut -f1 -d" "`
-	H=`echo $screen | cut -f2 -d" "`
-fi
-
-cd $MOVIE_CATALOG
-
-if [ -n $randomize ]
+if [ -n "$randomize" ]
 then
 	awk <$WRKDIR/toplay '
-	BEGIN {x = srand() }
-		{print rand() "	" $0}
+		BEGIN {x = srand() }
+			{print rand() "	" $0}
 	' |
 	sort -n |
 	cut -d'	' -f2-
 else
 	cat $WRKDIR/toplay
-fi |
+fi | 
 while read movie
 do
 	if [ ! -d "$movie" ]
@@ -116,12 +114,19 @@ do
 		spf=10		# default six frames per minute
 	fi
 
-	echo "`date +%'b %e %H:%m:%S'`	$spf spf	$title" | tee -a $LOG 
+	lastcached=`sed 1q lastcached 2>/dev/null`
+	if [ ! -n "$lastcached" -o "$lastcached" != "$movie" ]
+	then
+# -codec copy 
+		ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
+				$CACHE/frame%09d.jpeg 2>/dev/null &&
+			echo "$movie" >lastcached
+	fi
 
-	ffmpeg -i "$movie"/video.* -q:v 2 \
-		-v error $WRKDIR/frame%09d.jpeg
+	total_frames=`(cd $CACHE; ls | wc -l | tr -d ' ')`
+	echo "`date +%'b %e %H:%m:%S'`	$title	spf:$spf	$total_frames total frames" | tee -a $LOG 
 
-	ls $WRKDIR/frame*.* |
+	(cd $CACHE; ls) |
 	case "$first" in		# skip leading frames, if desired
 	"")	cat -;;
 	0)	cat -;;
@@ -132,14 +137,15 @@ do
 	all)	cat -;;
 	*)	sed -n 1,${count}p
 	esac |
-	while read fn
+	while read frame
 	do
-size=`file $fn | awk '{print $(NF-2)}'`
-bytes=`ls -l $fn | awk '{print $5}'`
-		echo "$prog: playing $fn	$size	$bytes" >>/tmp/$prog
-cp $fn /tmp/last.jpeg
+		fn="$CACHE/$frame"
+#size=`file $fn | awk '{print $(NF-2)}'`
+#bytes=`ls -l $fn | awk '{print $5}'`
+#		echo "$prog: playing $fn	$size	$bytes" >>/tmp/$prog
+#cp $fn /tmp/last.jpeg
 
-		case $style in
+		case "$style" in
 		desktop)
 			display -resize ${W}x${H} -backdrop -window root $fn
 			;;
@@ -157,11 +163,8 @@ end tell
 			#  not yet 
 			;;
 		esac
-
 		sleep $spf
-		rm -f "$WRKDIR/$fn"
 	done
-	rm -rf $WRKDIR
 
 	shift
 done
