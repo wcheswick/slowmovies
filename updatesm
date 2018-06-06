@@ -39,7 +39,8 @@ TMP=/tmp/$prog.catalog
 ls -d catalog/* 2>/dev/null |
 	sed 's:catalog/::' >$TMP
 
-cut -f1 -d'	' <index |
+awk -v FS="	" '{print $1}' <index |
+	sort |
 	comm -23 $TMP - |
 while read name
 do
