@@ -130,7 +130,6 @@ else
 fi | 
 while read movie
 do
-pwd
 	if [ ! -d "$movie" ]
 	then
 		echo "$prog: $movie	missing" 1>&2
