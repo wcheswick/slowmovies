@@ -17,7 +17,9 @@ usage="$prog [-l] [-r] {[-a] | m1 m2 ...| -i i1 i2 ...}"
 
 export PATH=$PATH:$HOME/bin
 
-. slowdefs
+WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
+CACHE=$WRKDIR/cache
+mkdir -p $CACHE        || exit 100
 
 case `uname` in
 Linux)
@@ -37,9 +39,27 @@ FreeBSD)
 	style=desktop
 esac
 
-WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
-CACHE=$WRKDIR/cache
-mkdir -p $CACHE        || exit 100
+show_frame() { 
+	local frame="$1"
+	case "$style" in
+	desktop)
+		display -resize ${W}x${H} -backdrop -window root "$frame"
+		;;
+	appledesktop)
+osascript <<!EOF
+tell application "System Events"
+	tell (every desktop)
+		set picture rotation to 0
+		set picture to POSIX file "$fn"
+	end tell
+end tell
+!EOF
+		;;
+	full)
+		#  not yet 
+		;;
+	esac
+}
 
 if which system_profiler >/dev/null
 then	# macos
@@ -58,7 +78,9 @@ then
 	H=`echo $screen | cut -f2 -d" "`
 fi
 
-cd $MOVIE_CATALOG
+. slowdefs	|| exit 99
+
+cd $LOCAL_MOVIE_CATALOG
 	grep 'updated=[0-9]' */info |
 	sed 's:/.*$::' >$WRKDIR/available_movies
 
@@ -108,6 +130,7 @@ else
 fi | 
 while read movie
 do
+pwd
 	if [ ! -d "$movie" ]
 	then
 		echo "$prog: $movie	missing" 1>&2
@@ -115,6 +138,11 @@ do
 	fi
 
 	. "$movie"/info
+
+	if [ -s "$movie"/banner.png ]
+	then
+		show_frame "$movie"/banner.png
+	fi
 
 	if [ ! -n "$spf" ]
 	then
@@ -147,29 +175,7 @@ do
 	while read frame
 	do
 		fn="$CACHE/$frame"
-#size=`file $fn | awk '{print $(NF-2)}'`
-#bytes=`ls -l $fn | awk '{print $5}'`
-#		echo "$prog: playing $fn	$size	$bytes" >>/tmp/$prog
-#cp $fn /tmp/last.jpeg
-
-		case "$style" in
-		desktop)
-			display -resize ${W}x${H} -backdrop -window root $fn
-			;;
-		appledesktop)
-osascript <<!EOF
-tell application "System Events"
-        tell (every desktop)
-                set picture rotation to 0
-                set picture to POSIX file "$fn"
-        end tell
-end tell
-!EOF
-			;;
-		full)
-			#  not yet 
-			;;
-		esac
+		show_frame "$fn"
 		sleep $spf
 	done
 

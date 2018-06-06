@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 prog=addmovie
-usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] title i1 i2 ..."
+usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] title subtitle i1 i2 ..."
 #
 #	Add a movie named "name" to our catalog.  It consists of one or
 #	more video files found relative to the current directory, and
@@ -16,7 +16,7 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] title i1 i2 ..."
 #
 #	-F	force rebuild of given movies
 
-WEB_CATALOG=/r/media/slowmovies/catalog
+. slowdefs	|| exit 99
 
 spf=10
 first=0
@@ -36,13 +36,14 @@ do
 	esac
 done
 
-if [ $# -lt 2 ]
+if [ $# -lt 3 ]
 then
-	echo "$usage" 1>&2
+	echo "usage: $usage" 1>&2
 	exit 1
 fi
 
 title="$1";	shift
+subtitle="$1";	shift
 
 inputlist=""
 while [ $# -gt 0 ]
@@ -51,28 +52,27 @@ do
 	shift
 done
 
-cataloged_video="$WEB_CATALOG/$title"
-video_info="$cataloged_video/info"
+video_info=info
 
-if [ ! -n "$force" -a -d "$cataloged_video" ]
+mkdir -p "$MASTER_CATALOG_DIR/$title"
+cd "$MASTER_CATALOG_DIR/$title"
+
+if [ ! -s banner.png ]
 then
-	if [ ! -s "$video_info" ]
-	then
-		echo "$prog:	$title	'info' missing," 1>&2
-		rm -rf "$cataloged_video"
-	else
-		echo "Skipping	$title ..." 1>&2
-		exit 0
-	fi
+	smbanner "$title" "$subtitle"  banner.png
 fi
 
-mkdir -p "$cataloged_video"
+if [ ! -n "$force" -a -s info -a -s video.mp4  ]
+then
+ 	echo "Skipping	$title ..." 1>&2
+	exit 0
+fi
 
-#rm -f "$video_info"
 
 echo "$prog:	$title		building ..." 1>&2
-#ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
-ffmpeg $inputlist -y -v 16  \
+
+ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
+#ffmpeg $inputlist -y -v 16  \
 	-vf "drawtext=text='$title': \
 		fontcolor=white: fontsize=20: \
 		box=1: boxcolor=black@0.5: \
@@ -83,8 +83,8 @@ ffmpeg $inputlist -y -v 16  \
 		box=1: boxcolor=black@0.5: \
 		fix_bounds=1: \
 		boxborderw=5: x=w-tw-5: y=h-18:" \
-	"$cataloged_video/video.mp4" || {
-		rm -rf "$cataloged_video"
+	video.mp4 || {
+		rm -f info
 		echo "	error, aborting" 1>&2
 		exit 10
 	}
@@ -92,14 +92,14 @@ ffmpeg $inputlist -y -v 16  \
 
 # generate executable shell variables for relevant information
 
-cat <<!EOF >"$video_info"
+cat <<!EOF >info
 title='$title'
 spf=$spf
 first=$first
 count=$count
 updated=`date +%s`
 !EOF
-chmod +x "$video_info"
+chmod +x info
 
 indexsm
 

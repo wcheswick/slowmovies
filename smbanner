@@ -3,6 +3,7 @@
 prog=smbanner
 usage="usage: $prog title subtext output.png"
 #
+#	Needs pdflatex and the beamer package
 
 WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
 mkdir -p $WRKDIR        || exit 100

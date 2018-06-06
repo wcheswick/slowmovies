@@ -79,7 +79,7 @@ esac
 !EOF
 fi
 
-. slowdefs
+. slowdefs	|| exit 99
 
 if [ ! -s $LOG ]
 then
@@ -89,4 +89,4 @@ then
 	chmod 644 $LOG
 fi
 
-mkdir -p $MOVIE_LIB/catalog	|| exit 3
+mkdir -p $LOCAL_MOVIE_CATALOG	|| exit 3

@@ -1,14 +1,18 @@
 # definitions for the slow movie stuff
 
-MOVIE_LIB=$HOME/lib/slow_movies
-MOVIE_CATALOG=$MOVIE_LIB/catalog
+MASTER_SLOW_MEDIA_DIR=/r/media/slowmovies
+MASTER_CATALOG_DIR=$MASTER_SLOW_MEDIA_DIR/catalog
+
+LOCAL_MOVIE_LIB=$HOME/lib/slow_movies
+LOCAL_MOVIE_CATALOG=$LOCAL_MOVIE_LIB/catalog
 
 MOVIE_URL="http://slowmovies.cheswick.com"
 MOVIE_CATALOG_URL=$MOVIE_URL/catalog
 MOVIE_INDEX_URL=$MOVIE_URL/index
+MOVIE_BANNER_URL=$MOVIE_URL/banner.png
 
-CURRENT_MOVIE=$MOVIE_LIB/current_movie		# index in MOVIE_LIST, starting at 1*
-CURRENT_REEL=$MOVIE_LIB/current_reel
-CURRENT_FRAME=$MOVIE_LIB/current_frame
+CURRENT_MOVIE=$LOCAL_MOVIE_LIB/current_movie	# index in MOVIE_LIST, starting at 1*
+CURRENT_REEL=$LOCAL_MOVIE_LIB/current_reel
+CURRENT_FRAME=$LOCAL_MOVIE_LIB/current_frame
 
 LOG=/var/log/slowmovies

@@ -5,9 +5,16 @@ usage="$prog"
 #
 #	Update the index of the current slow movies
 
-WEB_CATALOG=/r/media/slowmovies/catalog
+. slowdefs	|| exit 99
 
-cd $WEB_CATALOG
+if [ ! -s $MASTER_SLOW_MEDIA_DIR/banner.png ]
+then
+	smbanner "Slow Movies" \
+		"An experiment in calm drama\\\\by Bill Cheswick" \
+		$MASTER_SLOW_MEDIA_DIR/banner.png	|| exit 20
+fi
+
+cd $MASTER_CATALOG_DIR
 
 for i in *
 do
@@ -16,4 +23,4 @@ do
 		. "$i"/info	|| continue
 		echo "$title	$updated"
 	fi
-done >../index
+done >$MASTER_SLOW_MEDIA_DIR/index

@@ -26,11 +26,12 @@ then
 	exit 1
 fi
 
-. slowdefs
+. slowdefs	|| exit 99
 
-cd $MOVIE_LIB	|| exit 1
+cd $LOCAL_MOVIE_LIB	|| exit 1
 
 curl -s "$MOVIE_INDEX_URL" -o index || exit 2	# our list of movies
+curl -s "$MOVIE_BANNER_URL" -o banner.png || exit 3	# project banner
 
 # find movies that have been removed
 
@@ -51,8 +52,15 @@ while read line
 do
 	name=`echo "$line" | cut -f1 -d"	"`
 	date=`echo "$line" | cut -f2 -d"	"`
+	urlname=`echo "$name" | sed 's/ /%20/g'`
+
 	if [ -d "catalog/$name" ]
 	then
+		curl -s $MOVIE_CATALOG_URL/$urlname/banner.png \
+		    -o catalog/"$name"/banner.png || {
+			echo "$prog:	banner missing" 1>&2
+		}
+
 		. ./"catalog/$name/info"
 		if [ -n "$updated" -a "$updated" -ge "$date" ]
 		then
@@ -71,7 +79,6 @@ do
 	mkdir -p "catalog/$name"	|| exit 3
 	rm -rf catalog/"$name"/*
 
-	urlname=`echo "$name" | sed 's/ /%20/g'`
 	curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/info || {
 		echo "$prog:	info missing, skipping" 1>&2
 		continue
@@ -83,5 +90,5 @@ do
 	}
 done
 
-du -sh $MOVIE_CATALOG
+du -sh $LOCAL_MOVIE_LIB
 
