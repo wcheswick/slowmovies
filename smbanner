@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+prog=smbanner
+usage="usage: $prog title subtext output.png"
+#
+
+WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
+mkdir -p $WRKDIR        || exit 100
+rm -rf $WRKDIR/*
+
+case $# in
+3)	title="$1";	shift
+	subtext="$1";	shift;
+	ofn="$1";	shift;;
+*)
+	echo "$usage" 1>&2
+	exit 1
+esac
+
+(cd $WRKDIR
+
+cat <<!EOF >$WRKDIR/image.tex
+\documentclass[aspectratio=169]{beamer}
+%\usepackage[orientation=landscape]{beamerposter}
+
+\setbeamertemplate{navigation symbols}{}
+\newenvironment{bottompar}{\par\vspace*{\fill}}{\clearpage}
+
+
+\begin{document}
+
+\begin{frame}
+\frametitle{\Huge $title}
+
+\LARGE $subtext
+\vfill
+
+\begin{bottompar}
+\Large\url{http://slowmovies.cheswick.com}
+\end{bottompar}
+
+\end{frame}
+
+\end{document}
+!EOF
+
+pdflatex image.tex >log 2>log.err	&&
+	pdftopng -q -f 1 -l 1 image.pdf image
+) &&
+	 cp $WRKDIR/image-000001.png $ofn
+

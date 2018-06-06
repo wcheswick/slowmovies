@@ -39,10 +39,16 @@ SLOWSTAGE=$HOME/tmp/slowstage
 ./addsm -f 2 "Across the Sierras"	$SLOWSTAGE/AcrossTheSierras/*.mp4
 ./addsm "Asilomar"		$SLOWSTAGE/Asilomar/*.mp4
 ./addsm "Asilomar Beach"	$SLOWSTAGE/AsilomarBeach/*.mp4
+
 # nice morning view:
 ./addsm "Basin and Range"	$SLOWSTAGE/BasinAndRange/*.mp4
+
+# Needs to start at least after 41, 69 is goo
 ./addsm "Hana Road westbound"	$SLOWSTAGE/HanaRoadWB/*.avi
+
 ./addsm "It is flat"		$SLOWSTAGE/ItsFlat/*.mp4
+
+# nice, but needs the slow header skipped
 ./addsm "Sacramento"		$SLOWSTAGE/NearSacramento/*.mp4
 ./addsm "Rockies Road"		$SLOWSTAGE/RockiesRoad/*.mp4
 ./addsm "Into Utah"		$SLOWSTAGE/ToUtah/*.mp4
@@ -62,7 +68,8 @@ TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 # Needs higher res:
 ./addsm "East from Key West"		$TIME_LAPSE/key-west-east.mov
 ./addsm "East from Key West second"	$TIME_LAPSE/keys-eastbound.mov
-./addsm "A lava lamp"			$TIME_LAPSE/lavalamp.mpeg
+# not very interesting
+#./addsm "A lava lamp"			$TIME_LAPSE/lavalamp.mpeg
 # poor video:
 #./addsm "Moonrise in Nantucket"		$TIME_LAPSE/moonrise.mpeg
 ./addsm "ORD to SFO test"		$TIME_LAPSE/ord-sfo-test.mov
