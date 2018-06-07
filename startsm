@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+prog=startsm
+usage="$prog [playsm-params]"
+#
+
+
+. setupsm	|| exit 99
+
+if [ -s $LOCAL_MOVIE_LIB/banner.png ]	# show sm logo page
+then
+	show_frame $LOCAL_MOVIE_LIB/banner.png
+fi
+
+updatesm	# make sure things are current
+
+playsm "$@"

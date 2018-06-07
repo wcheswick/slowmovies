@@ -33,85 +33,91 @@ then
 	echo "$prog: all slow movies disabled" 1>&2
 fi
 
-SMSRC=$MASTER_SLOW_MEDIA_DIR/src
+addsm "Surfside beach pool" \
+	"Surfside beach pool" \
+		/r/media/videos/ACK/Surfside/wet-3/wet3-[ab].MP4
 
 addsm -f 200 "NJ-approved firework" \
 	"Now that fireworks are legal in NJ, we can watch one." \
-		$SMSRC/NJFireworksLarge.mp4
+		/r/media/videos/Fireworks/NJFireworksLarge.mp4
 
 addsm "2011 fireworks" \
 	"A fireworks display from 2011 at the Somerset Hills Gold course." \
-		$SMSRC/2011fireworks.mp4
+		/r/media/videos/Fireworks/fireworks2011-[12].mp4
+
+addsm "Mousecam" \
+	"A mouse investigates a Have-A-Heart trap, under infrared lighting." \
+		/r/media/videos/Etc/mousecam.mpg
 
 SLOWSTAGE=$HOME/tmp/slowstage
 
-./addsm -f 2 "Across the Sierras" \
+addsm -f 2 "Across the Sierras" \
 	"Driving through the Rockies." \
 		$SLOWSTAGE/AcrossTheSierras/*.mp4
-./addsm "Asilomar" \
+addsm "Asilomar" \
 	"A drone's view of the Asilomar Conference Center." \
 			$SLOWSTAGE/Asilomar/*.mp4
-./addsm "Asilomar Beach" \
+addsm "Asilomar Beach" \
 	"A drone's view of the ocean near Asilomar." \
 		$SLOWSTAGE/AsilomarBeach/*.mp4
 
 # nice morning view:
 # susie in the first shots. frame 30 is fine
-./addsm "Basin and Range" \
+addsm "Basin and Range" \
 	"A drive through Nevada's basin-and-range region." \
 		$SLOWSTAGE/BasinAndRange/*.mp4
 
 # Needs to start at least after 41, 69 is goo
-./addsm "Hana Road westbound" \
+addsm "Hana Road westbound" \
 	"Drive west from Hana on Maui." \
 		$SLOWSTAGE/HanaRoadWB/*.avi
 
-./addsm "It is flat" \
+addsm "It is flat" \
 	"A drive through Kansas." \
 		$SLOWSTAGE/ItsFlat/*.mp4
 
 # nice, but needs the slow header skipped
-./addsm "Sacramento" \
+addsm "Sacramento" \
 	"Driving near Sacramento." \
 		$SLOWSTAGE/NearSacramento/*.mp4
-./addsm "Rockies Road" \
+addsm "Rockies Road" \
 	"A drive through the Rockies." \
 		$SLOWSTAGE/RockiesRoad/*.mp4
-./addsm "Into Utah" \
+addsm "Into Utah" \
 	"Driving from Colorado into Utah." \
 		$SLOWSTAGE/ToUtah/*.mp4
 
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 
 # long black frames at start:
-./addsm "Through the Adirondacks" \
+addsm "Through the Adirondacks" \
 	"Drive from the northern Adirondacks to NJ." \
 		$TIME_LAPSE/adirondacks.mov
 
 #./addsm "At the beach"			$TIME_LAPSE/beach.mpg
-./addsm "Bernardsville North" \
+addsm "Bernardsville North" \
 	"A drive near Bernardsville, NJ." \
 		$TIME_LAPSE/bville-north-clip.mov
-./addsm "My Old Commute to FP" \
+addsm "My Old Commute to FP" \
 	"My old commute to work." \
 		$TIME_LAPSE/commute.mov
-./addsm "Around Darien"	\
+addsm "Around Darien"	\
 	"A drive around my old hometown, Darien, CT." \
 		$TIME_LAPSE/darien.mov
-./addsm "Ellivesdranreb" \
+addsm "Ellivesdranreb" \
 	"A safe but confusing Sunday drive around the block." \
 		$TIME_LAPSE/ellivsdranreb.mov
 
 # boring, all cloudy
 #./addsm "EWR to ORD test"		$TIME_LAPSE/ewr-ord-test.mov
 
-./addsm "Go west" "Go west?"		$TIME_LAPSE/gowest.mov
+addsm "Go west" "A flight to the west" $TIME_LAPSE/gowest.mov
 
 # Needs higher res:
-./addsm "East from Key West" \
+addsm "East from Key West" \
 	"A drive to the mainland at Mach 1." \
 		$TIME_LAPSE/key-west-east.mov
-./addsm "East from Key West second" \
+addsm "East from Key West second" \
 	"Another version of the drive to the mainland at Mach 1." \
 		$TIME_LAPSE/keys-eastbound.mov
 
@@ -120,12 +126,17 @@ TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 # poor video:
 #./addsm "Moonrise in Nantucket"		$TIME_LAPSE/moonrise.mpeg
 
-./addsm "ORD to SFO test" \
+addsm "ORD to SFO test" \
 	"The windowseat view from O'Hare to SFO." \
 		$TIME_LAPSE/ord-sfo-test.mov
-./addsm "Restroom" \
+# poor resolution:
+#addsm "Restroom" \
+#	"An early timelapse of a public restroom area in Nantucket." \
+#		$TIME_LAPSE/rest60.mpg
+# original, from irix:
+addsm "Restroom" \
 	"An early timelapse of a public restroom area in Nantucket." \
-		$TIME_LAPSE/rest60.mpg
+		/r/media/videos/mv/rest60.mpg
 
 # a test, but not interesting:
 #./addsm "Reverse"			$TIME_LAPSE/reverse.mov

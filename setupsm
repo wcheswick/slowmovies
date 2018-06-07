@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+prog=startsm
+usage=". $prog "
+#
+#	Figure out basics for displaying the slow movies
+#
+
+. slowdefs	|| exit 99
+
+case `uname` in
+Linux)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	smstyle=desktop
+	;;
+Darwin)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	smstyle=appledesktop
+	;;
+FreeBSD)
+	TMPDIR=${TMPDIR:-/var/tmp}
+	smstyle=desktop
+	;;
+*)		# just guessing here
+	TMPDIR=${TMPDIR:-/var/tmp}
+	smstyle=desktop
+esac
+
+if which system_profiler >/dev/null
+then	# macos
+	screen=`system_profiler SPDisplaysDataType |
+		grep Resolution |
+		sed 1q`	# main screen only, for now
+	W=`echo $screen | cut -f2 -d" "`
+	H=`echo $screen | cut -f4 -d" "`
+elif which xrdb >/dev/null
+then
+	screen=`xrdb -symbols -screen |
+		egrep 'DWIDTH=|DHEIGHT=' |
+		tr '\n' ' ' |
+		sed 's/-[^=]*=//g'`
+	W=`echo $screen | cut -f1 -d" "`
+	H=`echo $screen | cut -f2 -d" "`
+fi
+
+show_frame() { 
+	local frame="$1"
+	case "$smstyle" in
+	desktop)
+		display -resize ${W}x${H} -backdrop -window root "$frame"
+		;;
+	appledesktop)
+osascript <<!EOF
+tell application "System Events"
+	tell (every desktop)
+		set picture rotation to 0
+		set picture to POSIX file "$fn"
+	end tell
+end tell
+!EOF
+		;;
+	full)
+		#  not yet 
+		;;
+	esac
+}
+

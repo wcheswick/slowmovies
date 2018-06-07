@@ -31,7 +31,7 @@ do
 	fi
 done
 
-progs="addsm updatesm playsm indexsm smbanner slowdefs"
+progs="addsm updatesm playsm indexsm smbanner startsm setupsm slowdefs"
 
 for i in $progs
 do
