@@ -12,6 +12,6 @@ then
 	show_frame $LOCAL_MOVIE_LIB/banner.png
 fi
 
-updatesm	# make sure things are current
+nice updatesm &	# make sure things are current, but do it in background
 
 playsm "$@"
