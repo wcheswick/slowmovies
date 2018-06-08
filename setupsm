@@ -44,12 +44,13 @@ then
 fi
 
 show_frame() { 
-	local frame="$1"
+	frame="$1"
 	case "$smstyle" in
 	desktop)
 		display -resize ${W}x${H} -backdrop -window root "$frame"
 		;;
 	appledesktop)
+echo apple frame is -$frame-
 osascript <<!EOF
 tell application "System Events"
 	tell (every desktop)

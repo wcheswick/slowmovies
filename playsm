@@ -82,9 +82,9 @@ do
 
 	. "$movie"/info
 
-	if [ -s "$movie"/banner.png ]
+	if [ -s "$movie/banner.png" ]
 	then
-		show_frame "$movie"/banner.png
+		show_frame "$movie/banner.png"
 	fi
 
 	if [ ! -n "$spf" ]
