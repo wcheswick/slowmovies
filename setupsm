@@ -54,7 +54,7 @@ osascript <<!EOF
 tell application "System Events"
 	tell (every desktop)
 		set picture rotation to 0
-		set picture to POSIX file "$fn"
+		set picture to POSIX file "$frame"
 	end tell
 end tell
 !EOF
