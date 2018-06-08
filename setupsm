@@ -50,7 +50,6 @@ show_frame() {
 		display -resize ${W}x${H} -backdrop -window root "$frame"
 		;;
 	appledesktop)
-echo apple frame is -$frame-
 osascript <<!EOF
 tell application "System Events"
 	tell (every desktop)
