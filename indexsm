@@ -21,6 +21,7 @@ do
 	if [ -s "$i"/info ]
 	then
 		. "$i"/info	|| continue
-		echo "$title	$updated"
+		size=`du -s -m "$i" | awk '{print $1}'`
+		echo "$title	$updated	$size"
 	fi
 done >$MASTER_SLOW_MEDIA_DIR/index
