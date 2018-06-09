@@ -73,9 +73,10 @@ addsm "Mousecam" \
 
 SLOWSTAGE=$HOME/tmp/slowstage
 
-addsm -f 2 "Across the Sierras" \
+addsm -f 2 "Across the Rockies" \
 	"Driving through the Rockies." \
-		$SLOWSTAGE/AcrossTheSierras/*.mp4
+		/r/media/videos/EnRoute/Driving/TeslaToCA/AcrossTheRockies/*.mp4
+
 addsm "Asilomar" \
 	"A drone's view of the Asilomar Conference Center." \
 			$SLOWSTAGE/Asilomar/*.mp4
