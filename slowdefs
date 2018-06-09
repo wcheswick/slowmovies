@@ -16,3 +16,8 @@ CURRENT_REEL=$LOCAL_MOVIE_LIB/current_reel
 CURRENT_FRAME=$LOCAL_MOVIE_LIB/current_frame
 
 LOG=/var/log/slowmovies
+
+
+log() { 
+	echo "$@" | tee -a $LOG 1>&2
+}

@@ -33,9 +33,31 @@ then
 	echo "$prog: all slow movies disabled" 1>&2
 fi
 
-addsm "Surfside beach pool" \
-	"Surfside beach pool" \
-		/r/media/videos/ACK/Surfside/wet-3/wet3-[ab].MP4
+## surfside beach ##
+
+addsm "Sand castle 1" \
+	"Sand castle 1" \
+		/r/media/videos/ACK/Surfside/castle-1/*.MP4
+
+addsm "Sand castle 2" \
+	"Sand castle 2" \
+		/r/media/videos/ACK/Surfside/castle-2/*.MP4
+
+addsm -s 3 "Surfside sunset" \
+	"Surfside sunset" \
+		/r/media/videos/ACK/Surfside/sunset-raw/*.MP4
+
+addsm "Surfside beach pool 1" \
+	"Surfside beach pool 1" \
+		/r/media/videos/ACK/Surfside/wet-1.MP4
+
+addsm "Surfside beach pool 2" \
+	"Surfside beach pool 2" \
+		/r/media/videos/ACK/Surfside/wet-2.MP4
+
+addsm "Surfside beach pool 3" \
+        "Surfside beach pool 3" \
+                /r/media/videos/ACK/Surfside/wet-3/wet3-[ab].MP4
 
 addsm -f 200 "NJ-approved firework" \
 	"Now that fireworks are legal in NJ, we can watch one." \
@@ -68,7 +90,7 @@ addsm "Basin and Range" \
 		$SLOWSTAGE/BasinAndRange/*.mp4
 
 # Needs to start at least after 41, 69 is goo
-addsm "Hana Road westbound" \
+addsm -s 3 "Hana Road westbound" \
 	"Drive west from Hana on Maui." \
 		$SLOWSTAGE/HanaRoadWB/*.avi
 
@@ -76,10 +98,14 @@ addsm "It is flat" \
 	"A drive through Kansas." \
 		$SLOWSTAGE/ItsFlat/*.mp4
 
-# nice, but needs the slow header skipped
-addsm "Sacramento" \
-	"Driving near Sacramento." \
-		$SLOWSTAGE/NearSacramento/*.mp4
+## original is time-lapsed
+#addsm -f 660 "Westover to Sacramento" \
+#	"Westover to Sacramento" \
+#		$SLOWSTAGE/NearSacramento/*.mp4
+
+addsm "Nevada to Davis via SAC" \
+	"Nevada to Davis via SAC" \
+		/r/media/videos/EnRoute/Driving/TeslaToCA/NevadaToDavis/*.mp4
 addsm "Rockies Road" \
 	"A drive through the Rockies." \
 		$SLOWSTAGE/RockiesRoad/*.mp4

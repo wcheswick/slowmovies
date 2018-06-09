@@ -3,7 +3,7 @@
 prog=startsm
 usage="$prog [playsm-params]"
 #
-
+#	Default: play everything we haven't seen before, randomly
 
 . setupsm	|| exit 99
 
@@ -14,4 +14,8 @@ fi
 
 nice updatesm &	# make sure things are current, but do it in background
 
-playsm "$@"
+case $# in
+0)	playsm -a -r -n;;
+*)	playsm "$@"
+esac
+

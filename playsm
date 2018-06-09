@@ -11,9 +11,9 @@ usage="$prog [-l] [-r] {[-a] | m1 m2 ...| -i i1 i2 ...}"
 #	We pick the best we can.
 #
 #	-a	play all slowmovies
+#	-n	play only new or revised movies
 #	-l	list available slowmovies, and exit
 #	-r	play desired movies in random order
-
 
 export PATH=$PATH:$HOME/bin
 
@@ -24,6 +24,10 @@ mkdir -p $CACHE        || exit 100
 . slowdefs	|| exit 99
 . setupsm	|| exit 98
 
+case $# in
+0)	set '-r' '-a' '-n';;
+esac
+
 cd $LOCAL_MOVIE_CATALOG
 	grep 'updated=[0-9]' */info |
 	sed 's:/.*$::' >$WRKDIR/available_movies
@@ -31,6 +35,8 @@ cd $LOCAL_MOVIE_CATALOG
 >$WRKDIR/toplay
 
 randomize=
+onlynew=
+
 while [ $# -gt 0 ]
 do
 	case "$1" in
@@ -49,7 +55,9 @@ do
 	-l)	nl <$WRKDIR/available_movies
 		exit 0
 		;;
-	-r)	randomize=true;
+	-n)	onlynew=true
+		shift;;
+	-r)	randomize=true
 		shift;;
 	-*)	echo "$usage" 1>&2
 		exit 1;;
@@ -61,22 +69,33 @@ do
 	esac
 done
 
+(	cat $LOCAL_MOVIE_LIB/dontwatch 2>/dev/null
+	if [ -n "$onlynew" ]
+	then
+		cat $LOCAL_MOVIE_LIB/viewed 2>/dev/null
+	fi
+) |
+sort -u |
+comm -23 $WRKDIR/toplay - >$WRKDIR/playlist
+
+
 if [ -n "$randomize" ]
 then
-	awk <$WRKDIR/toplay '
+	awk <$WRKDIR/playlist '
 		BEGIN {x = srand() }
 			{print rand() "	" $0}
 	' |
 	sort -n |
 	cut -d'	' -f2-
 else
-	cat $WRKDIR/toplay
+	cat $WRKDIR/playlist
 fi | 
 while read movie
 do
+	log "$prog: $movie"
 	if [ ! -d "$movie" ]
 	then
-		echo "$prog: $movie	missing" 1>&2
+		log "$prog:	missing"
 		continue
 	fi
 
@@ -95,10 +114,12 @@ do
 	lastcached=`sed 1q $WRKDIR/lastcached 2>/dev/null`
 	if [ ! -n "$lastcached" -o "$lastcached" != "$movie" ]
 	then
-# -codec copy 
+		log "$prog: 	cracking..."
 		ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
 				$CACHE/frame%09d.jpeg 2>/dev/null &&
 			echo "$movie" >$WRKDIR/lastcached
+	else
+		log "$prog: 	cached"
 	fi
 
 	total_frames=`(cd $CACHE; ls | wc -l | tr -d ' ')`
@@ -109,11 +130,13 @@ do
 	"")	cat -;;
 	0)	cat -;;
 	*)	sed 1,${first}d
+		log "$prog: 	skipping ${first} frames"
 	esac |
 	case $count in		# limit frame count, if desired
 	"")	cat -;;
 	all)	cat -;;
 	*)	sed -n 1,${count}p
+		log "$prog: 	limited to ${count} frames"
 	esac |
 	while read frame
 	do
@@ -122,5 +145,6 @@ do
 		sleep $spf
 	done
 
+	echo "$movie" >>$LOCAL_MOVIE_LIB/viewed
 	shift
 done
