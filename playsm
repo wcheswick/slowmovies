@@ -159,6 +159,7 @@ do
 		sleep $spf
 	done
 
+	log "$prog:	finished"
 	echo "$movie" >>$LOCAL_MOVIE_LIB/viewed
 	shift
 done
