@@ -44,7 +44,7 @@ done
 
 # Set up .xinitrc to start up things
 
-if ! egrep 'playsm|playallsm' $HOME/.xinitrc >/dev/null
+if ! egrep 'startsm' $HOME/.xinitrc >/dev/null
 then
 	cat <<!EOF >$HOME/.xinitrc
 #!/bin/sh
@@ -52,14 +52,7 @@ then
 xsetroot -solid darkblue -cursor_name top_left_arrow
 xset s off -dpms
 
-# SM="NJ-approved firework"
-
-if [ -n "$SM" ]
-then
-        playsm "$SM" &
-else
-        playsm -r -a &
-fi
+startsm -r -a -n &
 
 exec w9wm -term xterm
 !EOF
