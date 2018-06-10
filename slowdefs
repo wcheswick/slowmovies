@@ -19,5 +19,5 @@ LOG=/var/log/slowmovies
 
 
 log() { 
-	echo "$@" | tee -a $LOG 1>&2
+	echo "`date +\"%b %e %H:%M:%S\"`	$@" | tee -a $LOG 1>&2
 }

@@ -80,7 +80,7 @@ addsm -f 2 "Across the Rockies" \
 addsm "Asilomar" \
 	"A drone's view of the Asilomar Conference Center." \
 			$SLOWSTAGE/Asilomar/*.mp4
-addsm "Asilomar Beach" \
+addsm -s 935 "Asilomar Beach" \
 	"A drone's view of the ocean near Asilomar." \
 		$SLOWSTAGE/AsilomarBeach/*.mp4
 
