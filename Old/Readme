@@ -1,0 +1,9 @@
+This was my first version of the slowmovie system.  It is fancier:
+videos are split up into smaller downloadable chunks, and a program
+peels off individual images as they are needed, saving time and lots
+of disk usage on the client.
+
+Alas, that program has a bunch of dependancies that make it difficult to
+create a static, portable binary, or build it on the target system.  Also
+alas, ffmpeg, in the new version, doesn't write a frame to the screen background
+at the needed rate, which would be a more-portable version of my custom software.
