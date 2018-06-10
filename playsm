@@ -161,5 +161,6 @@ do
 
 	log "$prog:	finished"
 	echo "$movie" >>$LOCAL_MOVIE_LIB/viewed
-	shift
 done
+
+log "$prog	exiting"
