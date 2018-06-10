@@ -24,15 +24,28 @@ mkdir -p $CACHE        || exit 100
 . slowdefs	|| exit 99
 . setupsm	|| exit 98
 
-case $# in
-0)	set '-r' '-a' '-n';;
-esac
-
 cd $LOCAL_MOVIE_CATALOG
 	grep 'updated=[0-9]' */info |
 	sed 's:/.*$::' >$WRKDIR/available_movies
 
 >$WRKDIR/toplay
+
+# only one player running, please
+
+playsm_pid=`cat $WRKDIR/pid 2>/dev/null`
+case "$playsm_pid" in
+"")	;;
+*)	npid=`ps -p $playsm_pid | sed -n '2,$p'`
+	case "$rpid" in
+	"")	# no longer running
+		rm -f $WRKDIR/pid;;
+	*)
+		log "$prog:	already running"
+		exit 1
+	esac
+esac
+
+echo $$ >$WRKDIR/pid
 
 randomize=
 onlynew=
@@ -116,14 +129,15 @@ do
 	then
 		log "$prog: 	cracking..."
 		ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
-				$CACHE/frame%09d.jpeg 2>/dev/null &&
+				$CACHE/frame%09d.jpeg 2>/dev/null && {
 			echo "$movie" >$WRKDIR/lastcached
+			log "$prog:	`(cd $CACHE; ls | wc -l | tr -d ' ')` frames extracted"
+		}
 	else
-		log "$prog: 	cached"
+		log "$prog: 	repeat, using cached frames"
 	fi
 
 	total_frames=`(cd $CACHE; ls | wc -l | tr -d ' ')`
-	echo "`date +%'b %e %H:%m:%S'`	$title	spf:$spf	$total_frames total frames" | tee -a $LOG 
 
 	(cd $CACHE; ls) |
 	case "$first" in		# skip leading frames, if desired
