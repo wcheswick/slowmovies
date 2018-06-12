@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 prog=playsm
-usage="$prog [-l] [-r] {[-a] | m1 m2 ...| -i i1 i2 ...}"
+usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| -i i1,i2,i3,... }"
 #
 #	Play a slow movie on the current machine.  There are a few styles:
 #
@@ -14,6 +14,7 @@ usage="$prog [-l] [-r] {[-a] | m1 m2 ...| -i i1 i2 ...}"
 #	-n	play only new or revised movies
 #	-l	list available slowmovies, and exit
 #	-r	play desired movies in random order
+#	-k	kill any current players on this machine
 
 export PATH=$PATH:$HOME/bin
 
@@ -45,7 +46,8 @@ case "$playsm_pid" in
 	esac
 esac
 
-echo $$ >$WRKDIR/pid
+our_pid=$$
+echo $our_pid >$WRKDIR/pid
 
 randomize=
 onlynew=
@@ -56,15 +58,21 @@ do
 	-a)	cp $WRKDIR/available_movies $WRKDIR/toplay
 		shift;;
 	-i)	shift
-		for i in $*
+		indexlist=`echo "$1" | tr ',' ' '`
+		shift
+		for i in $indexlist
 		do
 			movie_name=`sed -n ${i}p <$WRKDIR/available_movies`
 			if [ -n "$movie_name" ]
 			then
 				echo "$movie_name" >>$WRKDIR/toplay
 			fi
+			shift
 		done
 		break;;
+	-k)
+		rm -f $WRKDIR/pid
+		exit 0;;
 	-l)	nl <$WRKDIR/available_movies
 		exit 0
 		;;
@@ -128,11 +136,14 @@ do
 	if [ ! -n "$lastcached" -o "$lastcached" != "$movie" ]
 	then
 		log "$prog: 	cracking..."
-		ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
-				$CACHE/frame%09d.jpeg 2>/dev/null && {
+		if ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
+				$CACHE/frame%09d.jpeg 2>/dev/null
+		then
 			echo "$movie" >$WRKDIR/lastcached
 			log "$prog:	`(cd $CACHE; ls | wc -l | tr -d ' ')` frames extracted"
-		}
+		else
+			rm -f $WRKDIR/lastcached
+		fi
 	else
 		log "$prog: 	repeat, using cached frames"
 	fi
@@ -154,6 +165,16 @@ do
 	esac |
 	while read frame
 	do
+		if [ ! -s $WRKDIR/pid ]
+		then
+			log "$prog:	** terminated **"
+			break
+		elif [ `sed 1q $WRKDIR/pid` != $our_pid ]
+		then
+			log "$prog:	** Terminated **"
+			break
+		fi
+
 		fn="$CACHE/$frame"
 		show_frame "$fn"
 		sleep $spf
