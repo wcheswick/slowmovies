@@ -136,13 +136,14 @@ do
 	if [ ! -n "$lastcached" -o "$lastcached" != "$movie" ]
 	then
 		log "$prog: 	cracking..."
+		rm -f $WRKDIR/lastcached
+		(cd $CACHE; ls | xargs rm -f)
 		if ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
 				$CACHE/frame%09d.jpeg 2>/dev/null
 		then
 			echo "$movie" >$WRKDIR/lastcached
-			log "$prog:	`(cd $CACHE; ls | wc -l | tr -d ' ')` frames extracted"
-		else
-			rm -f $WRKDIR/lastcached
+			log "$prog:	`(cd $CACHE; ls | wc -l | 
+						tr -d ' ')` frames extracted"
 		fi
 	else
 		log "$prog: 	repeat, using cached frames"
