@@ -183,12 +183,15 @@ do
 			break
 		fi
 
-		echo "---- show_frame" "$frame"
-		show_frame "$frame"
-		cp $frame /tmp/lastframe.pnm
-
-		rm -f "$frame"	|| exit 29
-		sleep $spf
+		if [ -s $frame ]
+		then
+			echo "---- show_frame" "$frame"
+			show_frame "$frame"
+			cp $frame /tmp/lastframe.pnm
+			rm -f "$frame"
+		else
+			log "$prog:	frame missing: $frame"
+		fi
 	done
 
 	log "$prog:	finished"
