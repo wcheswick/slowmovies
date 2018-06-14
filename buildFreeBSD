@@ -1,0 +1,4 @@
+sudo pkg install libav
+
+cd src
+make install	|| exit 10
