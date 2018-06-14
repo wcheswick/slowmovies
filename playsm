@@ -19,8 +19,6 @@ usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| -i i1,i2,i3,... }"
 export PATH=$PATH:$HOME/bin
 
 WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
-CACHE=$WRKDIR/cache
-mkdir -p $CACHE        || exit 100
 
 . slowdefs	|| exit 99
 . setupsm	|| exit 98
@@ -98,6 +96,29 @@ done
 ) |
 sort -u |
 comm -23 $WRKDIR/toplay - >$WRKDIR/playlist
+
+# set up small ramfs if we can.  We are going to peel off individual frames
+# from the incoming video and store them there.  Since they are very ephemeral,
+# ramfs is fast, small, and doesn't wear out an SSD.
+
+CACHE=/tmp/$prog.cache
+
+case `uname` in
+FreeBSD)
+	mkdir -p $CACHE
+	sudo mdmfs -s 10m md1 $CACHE
+	;;
+Linux)
+	mkdir -p $CACHE
+	sudo mount -t tmpfs -o size=10m tmpfs $CACHE
+	;;
+Darwin)
+	diskutil erasevolume HFS+ '{$prog}Cache' \
+		`hdiutil attach -nomount ram://20480`
+	ln -s /Volumes/${prog}Cache $CACHE
+	;;
+*)
+esac
 
 
 if [ -n "$randomize" ]
