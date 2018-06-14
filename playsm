@@ -103,18 +103,29 @@ comm -23 $WRKDIR/toplay - >$WRKDIR/playlist
 
 CACHE=/tmp/$prog.cache
 
+RAMFS_SIZE=20m
+
 case `uname` in
 FreeBSD)
-	mkdir -p $CACHE
-	sudo mdmfs -s 10m md1 $CACHE
+	if [ -d $CACHE ]
+	then
+		sudo umount $CACHE
+	fi
+	if [ ! -d $CACHE ]
+	then
+		mkdir -m 0777 -p $CACHE
+		sudo mdmfs -m 0 -p 0777 -s $RAMFS_SIZE md1 $CACHE
+	fi
+	rm -f $CACHE/*
 	;;
 Linux)
-	mkdir -p $CACHE
-	sudo mount -t tmpfs -o size=10m tmpfs $CACHE
+	mkdir -m 0777 -p $CACHE
+	sudo mount -t tmpfs -o size=$RAMFS_SIZE tmpfs $CACHE
+	rm -f $CACHE/*
 	;;
 Darwin)
 	diskutil erasevolume HFS+ '{$prog}Cache' \
-		`hdiutil attach -nomount ram://20480`
+		`hdiutil attach -nomount ram://40960`
 	ln -s /Volumes/${prog}Cache $CACHE
 	;;
 *)
@@ -153,38 +164,12 @@ do
 		spf=10		# default six frames per minute
 	fi
 
-	lastcached=`sed 1q $WRKDIR/lastcached 2>/dev/null`
-	if [ ! -n "$lastcached" -o "$lastcached" != "$movie" ]
-	then
-		log "$prog: 	cracking..."
-		rm -f $WRKDIR/lastcached
-		(cd $CACHE; ls | xargs rm -f)
-		if ffmpeg -hide_banner -v 8 -i "$movie"/video.* -qscale:v 2 \
-				$CACHE/frame%09d.jpeg 2>/dev/null
-		then
-			echo "$movie" >$WRKDIR/lastcached
-			log "$prog:	`(cd $CACHE; ls | wc -l | 
-						tr -d ' ')` frames extracted"
-		fi
-	else
-		log "$prog: 	repeat, using cached frames"
-	fi
+	case "$count" in
+	all)	count=0;;
+	esac
 
-	total_frames=`(cd $CACHE; ls | wc -l | tr -d ' ')`
-
-	(cd $CACHE; ls) |
-	case "$first" in		# skip leading frames, if desired
-	"")	cat -;;
-	0)	cat -;;
-	*)	sed 1,${first}d
-		log "$prog: 	skipping ${first} frames"
-	esac |
-	case $count in		# limit frame count, if desired
-	"")	cat -;;
-	all)	cat -;;
-	*)	sed -n 1,${count}p
-		log "$prog: 	limited to ${count} frames"
-	esac |
+	avdecode -s $spf -f $first -c $count \
+		"$movie"/video.mp4 $CACHE/frame_%06d.pnm |
 	while read frame
 	do
 		if [ ! -s $WRKDIR/pid ]
@@ -197,8 +182,11 @@ do
 			break
 		fi
 
-		fn="$CACHE/$frame"
-		show_frame "$fn"
+		echo "---- show_frame" "$frame"
+		show_frame "$frame"
+		cp $frame /tmp/lastframe.pnm
+
+		rm -f "$frame"	|| exit 29
 		sleep $spf
 	done
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-prog=startsm
+prog=setupsm
 usage=". $prog "
 #
 #	Figure out basics for displaying the slow movies
@@ -25,6 +25,12 @@ FreeBSD)
 	TMPDIR=${TMPDIR:-/var/tmp}
 	smstyle=desktop
 esac
+
+if [ ! -n "`which avdecode`" ]
+then
+	echo "$prog:	avdecode missing, needs installation" 1>&2
+	exit 1
+fi
 
 if which system_profiler >/dev/null
 then	# macos

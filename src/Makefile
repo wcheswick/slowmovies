@@ -1,32 +1,26 @@
-BIN=$${HOME}/bin
+BIN=${HOME}/bin
 
 CFLAGS+=-I/opt/local/include -I/usr/local/include # -Wno-deprecated-declarations # -static
 LDFLAGS+=-L/usr/local/lib -lavcodec -lavutil -lavformat -lswscale -lpthread # -static
 
-all::	avdecode
+P=avdecode
 
-# This compiles with warning of deprecated calls.  Don't care at the moment.
+all::	${P}
 
-avdecode:	avdecode.o
-	${CC} ${CFLAGS} avdecode.o ${LDFLAGS} -o $@
+${P}:	${P}.o
+	${CC} ${CFLAGS} ${P}.o ${LDFLAGS} -o $@
 
 clean::
-	rm -f *.o avdecode
+	rm -f *.o ${P}
 
-install::	${BIN}/avdecode
+install::	${BIN}/${P}
 
-${BIN}/avdecode:	avsavdecodeplit
-	cp $< $@
+${BIN}/avdecode:	${P}
+	-mkdir -p ${BIN}
+	cp ${P} $@
 
-test::		avdecode
-#	avdecode -f 500 -s 5 -c 10  x
+test::		${P}
 	mkdir -p /var/tmp/test/
 	(cd /var/tmp/test; ls | xargs rm -f)
-	./avdecode -f 500 -s 1 -c 10 /r/media/slowmovies/catalog/Ellivesdranreb/video.mp4 \
+	./${P} -f 500 -s 1 -c 10 /r/media/slowmovies/catalog/Ellivesdranreb/video.mp4 \
 		/var/tmp/test/frame_%08d.pnm
-
-
-#test::		avdecode
-#	avdecode -s 5 -c 10 \
-#		/r/media/slowmovies/catalog/Ellivesdranreb/video.mp4 \
-#		/tmp/frames%09d

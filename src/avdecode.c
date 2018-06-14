@@ -101,9 +101,12 @@ save_frame_as_pnm(AVCodecContext *pCodecCtx, AVFrame *frame, char *pathname) {
 		return;
 	}
 	fprintf(f, "P6\n%d %d\n%d\n", frame->width, frame->height, 255);
-	for(y=0; y<frame->height; y++)
-		fwrite(pFrameRGB->data[0] + y*pFrameRGB->linesize[0], 1,
+	for(y=0; y<frame->height; y++) {
+		int n = fwrite(pFrameRGB->data[0] + y*pFrameRGB->linesize[0], 1,
 			pFrameRGB->width*3, f);
+		if (n < 0)
+			perror("writing image");
+	}
 	fclose(f);
 }
 
@@ -363,6 +366,7 @@ main (int argc, char **argv) {
 
 	/* read frames from the file */
 	ret = 0;
+	setlinebuf(stdout);
 	while (ret > -2 && av_read_frame(fmt_ctx, &pkt) >= 0) {
 		AVPacket orig_pkt = pkt;
 		do {
