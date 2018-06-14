@@ -1,7 +1,6 @@
 #!/bin/sh
 #
 prog=setupsm
-usage=". $prog "
 #
 #	Figure out basics for displaying the slow movies
 #
