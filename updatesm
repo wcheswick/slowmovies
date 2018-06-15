@@ -65,7 +65,7 @@ do
 		. ./"catalog/$name/info"
 		if [ -n "$updated" ]
 		then
-			if [ -a "$updated" -ge "$date" ]
+			if [ "$updated" -ge "$date" ]
 			then
 				echo "$prog: $name	up to date" 1>&2
 				continue
