@@ -33,33 +33,40 @@ then
 	echo "$prog: all slow movies disabled" 1>&2
 fi
 
-## surfside beach ##
+SLOWSTAGE=$HOME/tmp/slowstage
 
-addsm "Sand castle 1" \
-	"Sand castle 1" \
-		/r/media/videos/ACK/Surfside/castle-1/*.MP4
-
-addsm "Sand castle 2" \
-	"Sand castle 2" \
-		/r/media/videos/ACK/Surfside/castle-2/*.MP4
-
-addsm -s 3 "Surfside sunset" \
+addsm -s 3 -q 2 "Surfside sunset" \
 	"Surfside sunset" \
 		/r/media/videos/ACK/Surfside/sunset-raw/*.MP4
 
-addsm "Surfside beach pool 1" \
-	"Surfside beach pool 1" \
+# Needs to start at least after 41, 69 is good
+addsm -f 41 -q 3 "Hana Road westbound" \
+	"24 times slower." \
+		$SLOWSTAGE/HanaRoadWB/*.avi
+
+## surfside beach ##
+
+addsm -q 2 "Sand castle 1" \
+	"Ches sandcastle in a tidal pool" \
+		/r/media/videos/ACK/Surfside/castle-1/*.MP4
+
+addsm -q 4 "Sand castle 2" \
+	"Ches sandcastle in a tidal pool" \
+		/r/media/videos/ACK/Surfside/castle-2/*.MP4
+
+addsm -q 5 "Surfside beach" \
+	"Surfside beach" \
 		/r/media/videos/ACK/Surfside/wet-1.MP4
 
-addsm "Surfside beach pool 2" \
-	"Surfside beach pool 2" \
+addsm -f 700 -q 4 "Surfside beach surf" \
+	"Surfside beach surf" \
 		/r/media/videos/ACK/Surfside/wet-2.MP4
 
-addsm "Surfside beach pool 3" \
-        "Surfside beach pool 3" \
+addsm "Surfside beach pool" \
+        "Surfside beach pool" \
                 /r/media/videos/ACK/Surfside/wet-3/wet3-[ab].MP4
 
-addsm -f 200 "NJ-approved firework" \
+addsm -f 200 -q 5 "NJ-approved firework" \
 	"Now that fireworks are legal in NJ, we can watch one." \
 		/r/media/videos/Fireworks/NJFireworksLarge.mp4
 
@@ -67,36 +74,29 @@ addsm "2011 fireworks" \
 	"A fireworks display from 2011 at the Somerset Hills Gold course." \
 		/r/media/videos/Fireworks/fireworks2011-[12].mp4
 
-addsm "Mousecam" \
+addsm -q 2 "Mousecam" \
 	"A mouse investigates a Have-A-Heart trap, under infrared lighting." \
 		/r/media/videos/Etc/mousecam.mpg
 
-SLOWSTAGE=$HOME/tmp/slowstage
-
-addsm -f 3 "Across the Rockies" \
+addsm -f 3 -q 2 "Across the Rockies" \
 	"Driving through the Rockies." \
 		/r/media/videos/EnRoute/Driving/TeslaToCA/AcrossTheRockies/*.mp4
 
-addsm "Asilomar" \
+addsm -q 3 "Asilomar" \
 	"A drone's view of the Asilomar Conference Center." \
 			$SLOWSTAGE/Asilomar/*.mp4
-addsm -s 935 "Asilomar Beach" \
+addsm -q 3 -s 935 "Asilomar Beach" \
 	"A drone's view of the ocean near Asilomar." \
 		$SLOWSTAGE/AsilomarBeach/*.mp4
 
 # nice morning view:
 # susie in the first shots. frame 30 is fine
-addsm "Basin and Range" \
-	"A drive through Nevada's basin-and-range region." \
-		$SLOWSTAGE/BasinAndRange/*.mp4
+addsm -q 4 "Moab to Canyonlands" \
+	"A sunrise trip to the Canyonlands lookup" \
+		$SLOWSTAGE/MoabToCanyonlands/*.mp4
 
-# Needs to start at least after 41, 69 is goo
-addsm -f -s 3 "Hana Road westbound" \
-	"24 times slower." \
-		$SLOWSTAGE/HanaRoadWB/*.avi
-
-addsm "It is flat" \
-	"A drive through Kansas." \
+addsm -q 2 "It is flat" \
+	"Timelapse drive through Kansas." \
 		$SLOWSTAGE/ItsFlat/*.mp4
 
 ## original is time-lapsed
@@ -107,45 +107,54 @@ addsm "It is flat" \
 addsm "Nevada to Davis via SAC" \
 	"Nevada to Davis via SAC" \
 		/r/media/videos/EnRoute/Driving/TeslaToCA/NevadaToDavis/*.mp4
-addsm "Rockies Road" \
-	"A drive through the Rockies." \
+addsm -q 3 "Rockies Road" \
+	"A drive into the Rockies." \
 		$SLOWSTAGE/RockiesRoad/*.mp4
-addsm "Into Utah" \
-	"Driving from Colorado into Utah." \
+addsm -q 3 "Into Utah" \
+	"Time lapse driving from Colorado into Utah." \
 		$SLOWSTAGE/ToUtah/*.mp4
 
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 
 # long black frames at start:
-addsm "Through the Adirondacks" \
+addsm -q 3 "Through the Adirondacks" \
 	"Drive from the northern Adirondacks to NJ." \
 		$TIME_LAPSE/adirondacks.mov
 
-#./addsm "At the beach"			$TIME_LAPSE/beach.mpg
-addsm "Bernardsville North" \
-	"A drive near Bernardsville, NJ." \
+# old time lapse, 4x3, terry sand castles
+addsm -q 3 "Early sand castles" \
+	"Terry castles in a tidal pool" \
+		$TIME_LAPSE/beach.mpg
+addsm -q 2 "I-287 North" \
+	"A high-speed drive on I-287 north to I-87." \
 		$TIME_LAPSE/bville-north-clip.mov
-addsm "My Old Commute to FP" \
+addsm -q 2 "My Old Commute to FP" \
 	"My old commute to work." \
 		$TIME_LAPSE/commute.mov
-addsm "Around Darien"	\
-	"A drive around my old hometown, Darien, CT." \
-		$TIME_LAPSE/darien.mov
-addsm "Ellivesdranreb" \
+# no, not Darien. North from bville:
+#addsm "Around Darien"	\
+#	"A drive around my old hometown, Darien, CT." \
+#		$TIME_LAPSE/darien.mov
+
+addsm -q 4 "Ellivesdranreb" \
 	"A safe but confusing Sunday drive around the block." \
 		$TIME_LAPSE/ellivsdranreb.mov
 
 # boring, all cloudy
-#./addsm "EWR to ORD test"		$TIME_LAPSE/ewr-ord-test.mov
+addsm -q 0 "EWR to ORD test" ""		$TIME_LAPSE/ewr-ord-test.mov
 
-addsm "Go west" "A flight to the west" $TIME_LAPSE/gowest.mov
+addsm -q 2 "West over the Sierras" \
+	"Time lapse window seat into the bay area" \
+		 $TIME_LAPSE/gowest.mov
 
 # Needs higher res:
-addsm "East from Key West" \
-	"A drive to the mainland at Mach 1." \
-		$TIME_LAPSE/key-west-east.mov
-addsm "East from Key West second" \
-	"Another version of the drive to the mainland at Mach 1." \
+# not the whole deal
+#addsm "East from Key West" \
+#	"A drive to the mainland at Mach 1." \
+#		$TIME_LAPSE/key-west-east.mov
+
+addsm "From Key West to the Mainland at Mach 20" \
+	"" \
 		$TIME_LAPSE/keys-eastbound.mov
 
 # not very interesting
@@ -167,7 +176,7 @@ addsm "Restroom" \
 
 # a test, but not interesting:
 #./addsm "Reverse"			$TIME_LAPSE/reverse.mov
-#./addsm "Slow"				$TIME_LAPSE/slow.mov
+addsm -q 1 "iChat" "T and K on iChat"	$TIME_LAPSE/slow.mov
 
 #./addsm "Fast solitaire" \
 #	"Slowly." \

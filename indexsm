@@ -18,10 +18,10 @@ cd $MASTER_CATALOG_DIR
 
 for i in *
 do
-	if [ -s "$i"/info ]
+	if [ -s "$i/info" ]
 	then
-		. "$i"/info	|| continue
+		. "$i/info"	|| continue
 		size=`du -s -m "$i" | awk '{print $1}'`
-		echo "$title	$updated	$size"
+		echo "$title	$updated	$size	$quality"
 	fi
 done >$MASTER_SLOW_MEDIA_DIR/index

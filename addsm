@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 prog=addmovie
-usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] title subtitle i1 i2 ..."
+usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] [-q quality] title subtitle i1 i2 ..."
 #
 #	Add a movie named "name" to our catalog.  It consists of one or
 #	more video files found relative to the current directory, and
@@ -18,18 +18,20 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] title subtitle i1 i
 
 . slowdefs	|| exit 99
 
-spf=10
-first=0
-count=all
-force=
+nspf=10
+nfirst=0
+ncount=all
+nforce=
+nquality=
 
 while [ $# -gt 0 ]
 do
 	case "$1" in
-	-s)	shift; spf=$1; shift;;
-	-f)	shift; first=$1; shift;;
-	-F)	shift; force=true;;
-	-n)	shift; count=$1; shift;;
+	-s)	shift; nspf=$1; shift;;
+	-f)	shift; nfirst=$1; shift;;
+	-F)	shift; nforce=true;;
+	-n)	shift; ncount=$1; shift;;
+	-q)	shift; nquality=$1; shift;;
 	-*)	echo "$usage" 1>&2
 		exit 1;;
 	*)	break
@@ -52,8 +54,6 @@ do
 	shift
 done
 
-video_info=info
-
 mkdir -p "$MASTER_CATALOG_DIR/$title"
 cd "$MASTER_CATALOG_DIR/$title"
 
@@ -62,44 +62,47 @@ then
 	smbanner "$title" "$subtitle"  banner.png
 fi
 
-if [ ! -n "$force" -a -s info -a -s video.mp4  ]
+# generate executable shell variables for relevant information
+
+
+if [ -n "$force" -o ! -s info -o ! -s video.mp4  ]
 then
- 	echo "Skipping	$title ..." 1>&2
-	exit 0
+	echo "$prog:	$title		building ..." 1>&2
+	#ffmpeg $inputlist -y -v 16  \
+	ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
+		-vf "drawtext=text='$title': \
+			fontcolor=white: fontsize=20: \
+			box=1: boxcolor=black@0.5: \
+			fix_bounds=1: \
+			boxborderw=5: x=5: y=h-22:, \
+		drawtext=text='frame %{n}': \
+			fontcolor=white: fontsize=16: \
+			box=1: boxcolor=black@0.5: \
+			fix_bounds=1: \
+			boxborderw=5: x=w-tw-5: y=h-18:" \
+		video.mp4 || {
+			rm -f info
+			echo "	error, aborting" 1>&2
+			exit 10
+		}
+	updated=`date +%s`
+else
+	echo "$prog:	$title		updating ..." 1>&2
+	. ./info
 fi
 
-
-echo "$prog:	$title		building ..." 1>&2
-#ffmpeg $inputlist -y -v 16  \
-
-ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
-	-vf "drawtext=text='$title': \
-		fontcolor=white: fontsize=20: \
-		box=1: boxcolor=black@0.5: \
-		fix_bounds=1: \
-		boxborderw=5: x=5: y=h-22:, \
-	drawtext=text='frame %{n}': \
-		fontcolor=white: fontsize=16: \
-		box=1: boxcolor=black@0.5: \
-		fix_bounds=1: \
-		boxborderw=5: x=w-tw-5: y=h-18:" \
-	video.mp4 || {
-		rm -f info
-		echo "	error, aborting" 1>&2
-		exit 10
-	}
-
-
-# generate executable shell variables for relevant information
+# generate new info file
 
 cat <<!EOF >info
 title='$title'
-spf=$spf
-first=$first
-count=$count
-updated=`date +%s`
+spf=$nspf
+first=$nfirst
+count=$ncount
+quality=$nquality
 !EOF
 chmod +x info
+
+set +x
 
 indexsm
 
