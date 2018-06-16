@@ -40,7 +40,7 @@ cd $LOCAL_MOVIE_LIB	|| exit 1
 curl -s "$MOVIE_INDEX_URL" -o index || exit 2	# our list of movies
 curl -s "$MOVIE_BANNER_URL" -o banner.png || exit 3	# project banner
 
-awk -v FS='	' -v q="$q" <index '
+awk -v FS='	' -v q="$lowestq" <index '
 NF < 4 {	print; next}
 {	quality=$4
 	if (quality < q)

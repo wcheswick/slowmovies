@@ -12,7 +12,8 @@ then
 	show_frame $LOCAL_MOVIE_LIB/banner.png
 fi
 
-nice updatesm &	# make sure things are current, but do it in background
+#  user does this
+# nice updatesm -q 3 &	# make sure things are current, but do it in background
 
 case $# in
 0)	playsm -a -r -n;;
