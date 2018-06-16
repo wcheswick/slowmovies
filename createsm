@@ -70,7 +70,7 @@ addsm -f 200 -q 5 "NJ-approved firework" \
 	"Now that fireworks are legal in NJ, we can watch one." \
 		/r/media/videos/Fireworks/NJFireworksLarge.mp4
 
-addsm "2011 fireworks" \
+addsm -q 2 "2011 fireworks" \
 	"A fireworks display from 2011 at the Somerset Hills Gold course." \
 		/r/media/videos/Fireworks/fireworks2011-[12].mp4
 
@@ -104,7 +104,7 @@ addsm -q 2 "It is flat" \
 #	"Westover to Sacramento" \
 #		$SLOWSTAGE/NearSacramento/*.mp4
 
-addsm "Nevada to Davis via SAC" \
+addsm -q 3 "Nevada to Davis via SAC" \
 	"Nevada to Davis via SAC" \
 		/r/media/videos/EnRoute/Driving/TeslaToCA/NevadaToDavis/*.mp4
 addsm -q 3 "Rockies Road" \
@@ -153,7 +153,7 @@ addsm -q 2 "West over the Sierras" \
 #	"A drive to the mainland at Mach 1." \
 #		$TIME_LAPSE/key-west-east.mov
 
-addsm "From Key West to the Mainland at Mach 20" \
+addsm -q 3 "From Key West to the Mainland at Mach 20" \
 	"" \
 		$TIME_LAPSE/keys-eastbound.mov
 
@@ -162,7 +162,7 @@ addsm "From Key West to the Mainland at Mach 20" \
 # poor video:
 #./addsm "Moonrise in Nantucket"		$TIME_LAPSE/moonrise.mpeg
 
-addsm "ORD to SFO test" \
+addsm -q 2 "ORD to SFO test" \
 	"The windowseat view from O'Hare to SFO." \
 		$TIME_LAPSE/ord-sfo-test.mov
 # poor resolution:
@@ -170,7 +170,7 @@ addsm "ORD to SFO test" \
 #	"An early timelapse of a public restroom area in Nantucket." \
 #		$TIME_LAPSE/rest60.mpg
 # original, from irix:
-addsm "Restroom" \
+addsm -q 1 "Restroom" \
 	"An early timelapse of a public restroom area in Nantucket." \
 		/r/media/videos/mv/rest60.mpg
 
@@ -192,4 +192,5 @@ WINDOWSEAT=$HOME/tmp/slowstage/windowseat/SFO-EWR
 # not loaded yet
 #./addsm "SFO-EWR, the windowseat"	$WINDOWSEAT/GOPR2216.MP4 $WINDOWSEAT/GO0*
 
-indexsm
+indexsm -s
+

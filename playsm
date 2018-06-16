@@ -18,7 +18,6 @@ usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| -i i1,i2,i3,... }"
 
 export PATH=$PATH:$HOME/bin
 
-WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
 mkdir -p ${WRKDIR}
 
 . slowdefs	|| exit 99
@@ -104,7 +103,7 @@ comm -23 $WRKDIR/toplay - >$WRKDIR/playlist
 
 CACHE=/tmp/$prog.cache
 
-RAMFS_SIZE=20m
+RAMFS_SIZE_MB=60
 
 case `uname` in
 FreeBSD)
@@ -115,18 +114,19 @@ FreeBSD)
 	if [ ! -d $CACHE ]
 	then
 		mkdir -m 0777 -p $CACHE
-		sudo mdmfs -m 0 -p 0777 -s $RAMFS_SIZE md1 $CACHE
+		sudo mdmfs -m 0 -p 0777 -s ${RAMFS_SIZE_MB}m md1 $CACHE
 	fi
 	rm -f $CACHE/*
 	;;
 Linux)
 	mkdir -m 0777 -p $CACHE
-	sudo mount -t tmpfs -o size=$RAMFS_SIZE tmpfs $CACHE
+	sudo mount -t tmpfs -o size=${RAMFS_SIZE_MB}m tmpfs $CACHE
 	rm -f $CACHE/*
 	;;
 Darwin)
+	ramblocks=`expr ${RAMFS_SIZE_MB} * 2048`
 	diskutil erasevolume HFS+ '{$prog}Cache' \
-		`hdiutil attach -nomount ram://40960`
+		`hdiutil attach -nomount ram://$ramblocks`
 	ln -s /Volumes/${prog}Cache $CACHE
 	;;
 *)

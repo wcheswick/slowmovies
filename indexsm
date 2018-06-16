@@ -1,11 +1,28 @@
 #!/bin/sh
 #
 prog=indexsm
-usage="$prog"
+usage="$prog [-s]"
 #
 #	Update the index of the current slow movies
 
 . slowdefs	|| exit 99
+
+summary=
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-s)	summary=true; shift;;
+	-*)	echo "$usage" 1>&2
+		exit 1;;
+	*)	break
+	esac
+done
+
+if [ $# -ne 0 ]
+then
+	echo "usage: $usage" 1>&2
+	exit 2
+fi
 
 if [ ! -s $MASTER_SLOW_MEDIA_DIR/banner.png ]
 then
@@ -20,8 +37,16 @@ for i in *
 do
 	if [ -s "$i/info" ]
 	then
-		. "$i/info"	|| continue
-		size=`du -s -m "$i" | awk '{print $1}'`
-		echo "$title	$updated	$size	$quality"
+		(	. "$i/info"	|| continue
+			size=`du -s -m "$i" | awk '{print $1}'`
+			echo "$title	$updated	$size	$quality"
+		)
 	fi
 done >$MASTER_SLOW_MEDIA_DIR/index
+
+case "$summary" in
+"")	;;
+*)
+	awk -v FS=' ' 'NF < 4 {print}' <$MASTER_SLOW_MEDIA_DIR/index
+	du -sh $MASTER_SLOW_MEDIA_DIR
+esac

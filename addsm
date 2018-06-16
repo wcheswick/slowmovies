@@ -89,9 +89,18 @@ then
 else
 	echo "$prog:	$title		updating ..." 1>&2
 	. ./info
+	if [ ! -n "$updated" ]
+	then
+		updated=`stat -f%m video.mp4`
+	fi
 fi
 
 # generate new info file
+
+if [ ! -n "$updated" ]
+then
+	updated=`date +%s`
+fi
 
 cat <<!EOF >info
 title='$title'
@@ -99,10 +108,8 @@ spf=$nspf
 first=$nfirst
 count=$ncount
 quality=$nquality
+updated=$updated
 !EOF
 chmod +x info
 
-set +x
-
 indexsm
-

@@ -1,5 +1,8 @@
 # definitions for the slow movie stuff
 
+TMPDIR=${TMPDIR:-/var/tmp}
+WRKDIR=${WRKDIR:-${TMPDIR}/${prog}}
+
 MASTER_SLOW_MEDIA_DIR=/r/media/slowmovies
 MASTER_CATALOG_DIR=$MASTER_SLOW_MEDIA_DIR/catalog
 

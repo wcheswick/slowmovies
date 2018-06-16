@@ -1,19 +1,23 @@
 #!/bin/sh
 #
 prog=updatesm
-usage="usage: $prog [-n]"
+usage="usage: $prog [-n] [-q q]"
 #
 #	Check the mother site for movies we don't have.
 #
-#	XXX doesn't delete old movies
+#	-n	compute changes, but do not make them
+#	-q q	only fetch movies of quality "q" or better
+#		0 = uninteresting tests, 5 = favorites
 
 export PATH=$PATH:$HOME/bin
 
-noupdate=
+nochange=
+lowestq=0
 while [ $# -gt 0 ]
 do
 	case "$1" in
-	-n)	shift; noupdate=true;;
+	-n)	shift; nochange=true;;
+	-q)	shift; lowestq=$1; shift;;
 	-*)	echo "$usage" 1>&2
 		exit 1;;
 	*)	break
@@ -28,41 +32,60 @@ fi
 
 . slowdefs	|| exit 99
 
+mkdir -p $WRKDIR        || exit 100
+rm -rf $WRKDIR/*
+
 cd $LOCAL_MOVIE_LIB	|| exit 1
 
 curl -s "$MOVIE_INDEX_URL" -o index || exit 2	# our list of movies
 curl -s "$MOVIE_BANNER_URL" -o banner.png || exit 3	# project banner
 
+awk -v FS='	' -v q="$q" <index '
+NF < 4 {	print; next}
+{	quality=$4
+	if (quality < q)
+		next
+	print
+}' >$WRKDIR/interesting_index
+
 # find movies that have been removed
 
-TMP=/tmp/$prog.catalog
 ls -d catalog/* 2>/dev/null |
-	sed 's:catalog/::' >$TMP
+	sed 's:catalog/::' |
+	sort >$WRKDIR/catalog
 
-awk -v FS="	" '{print $1}' <index |
+awk -v FS="	" '{print $1}' <$WRKDIR/interesting_index |
 	sort |
-	comm -23 $TMP - |
+	comm -23 $WRKDIR/catalog - |
 while read name
 do
-	echo "$prog:	removing old movie:	$name" 1>&2
-	rm -rf catalog/"$name"
+	if [ -n "$nochange" ]
+	then
+		echo "$prog:	would remove movie:	$name" 1>&2
+	else
+		echo "$prog:	removing old movie:	$name" 1>&2
+		rm -rf catalog/"$name"
+	fi
 done
 
-cat index |
+cat $WRKDIR/interesting_index |
 while read line
 do
 	name=`echo "$line" | cut -f1 -d"	"`
 	date=`echo "$line" | cut -f2 -d"	"`
+	megabytes=`echo "$line" | cut -f3 -d"	"`
+	quality=`echo "$line" | cut -f4 -d"	"`
+
 	urlname=`echo "$name" | sed 's/ /%20/g'`
 
 	if [ -d "catalog/$name" ]
 	then
-		curl -s $MOVIE_CATALOG_URL/$urlname/banner.png \
-		    -o catalog/"$name"/banner.png || {
-			echo "$prog:	banner missing" 1>&2
+		curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/info || {
+			echo "$prog:	info missing, skipping" 1>&2
+			continue
 		}
-
 		. ./"catalog/$name/info"
+
 		if [ -n "$updated" ]
 		then
 			if [ "$updated" -ge "$date" ]
@@ -73,7 +96,7 @@ do
 		fi
 	fi
 
-	if [ -n "$noupdate" ]
+	if [ -n "$nochange" ]
 	then
 		echo "$prog: $name	needs updating" 1>&2
 		continue
@@ -88,7 +111,13 @@ do
 		continue
 	}
 
-	curl -s $MOVIE_CATALOG_URL/$urlname/video.mp4 -o catalog/"$name"/video.mp4 || {
+	curl -s $MOVIE_CATALOG_URL/$urlname/banner.png \
+	    -o catalog/"$name"/banner.png || {
+		echo "$prog:	banner missing" 1>&2
+	}
+
+	curl -s $MOVIE_CATALOG_URL/$urlname/video.mp4 \
+	    -o catalog/"$name"/video.mp4 || {
 		echo "$prog:	error, skipping" 1>&2
 		continue
 	}
