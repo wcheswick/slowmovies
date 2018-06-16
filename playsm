@@ -55,7 +55,7 @@ onlynew=
 while [ $# -gt 0 ]
 do
 	case "$1" in
-	-a)	cp $WRKDIR/available_movies $WRKDIR/toplay
+	-a)	sort -u $WRKDIR/available_movies >$WRKDIR/toplay
 		shift;;
 	-i)	shift
 		indexlist=`echo "$1" | tr ',' ' '`
@@ -65,10 +65,10 @@ do
 			movie_name=`sed -n ${i}p <$WRKDIR/available_movies`
 			if [ -n "$movie_name" ]
 			then
-				echo "$movie_name" >>$WRKDIR/toplay
+				echo "$movie_name"
 			fi
 			shift
-		done
+		done | sort -u >$WRKDIR/toplay
 		break;;
 	-k)
 		rm -f $WRKDIR/pid
@@ -84,8 +84,8 @@ do
 		exit 1;;
 	*)	for i in "$@"
 		do
-			echo "$i" >>$WRKDIR/toplay
-		done
+			echo "$i"
+		done | sort -u >$WRKDIR/toplay
 		break
 	esac
 done
