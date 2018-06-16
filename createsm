@@ -35,6 +35,13 @@ fi
 
 SLOWSTAGE=$HOME/tmp/slowstage
 
+TIME_LAPSE=$HOME/tmp/slowstage/timelapse
+
+# long black frames at start:
+addsm -q 3 "Leaving the Adirondacks" \
+	"An evening's departure from Sabbatis to points south." \
+		$TIME_LAPSE/adirondacks.mov
+
 addsm -s 3 -q 2 "Surfside sunset" \
 	"Surfside sunset" \
 		/r/media/videos/ACK/Surfside/sunset-raw/*.MP4
@@ -113,13 +120,6 @@ addsm -q 3 "Rockies Road" \
 addsm -q 3 "Into Utah" \
 	"Time lapse driving from Colorado into Utah." \
 		$SLOWSTAGE/ToUtah/*.mp4
-
-TIME_LAPSE=$HOME/tmp/slowstage/timelapse
-
-# long black frames at start:
-addsm -q 3 "Through the Adirondacks" \
-	"Drive from the northern Adirondacks to NJ." \
-		$TIME_LAPSE/adirondacks.mov
 
 # old time lapse, 4x3, terry sand castles
 addsm -q 3 "Early sand castles" \
