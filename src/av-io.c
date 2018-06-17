@@ -34,35 +34,19 @@
 #include <unistd.h>
 #include <assert.h>
 
+#include "vidio.h"
+
 #include <libavutil/imgutils.h>
 #include <libavutil/samplefmt.h>
 #include <libavutil/timestamp.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
-#include "arg.h"
-
-int nflag = 0;
-int Sflag = 0;
-int spf = 10;	// seconds per frame
-int first = 0;	// first frame
-int count = 0;	// number of frames to show, 0 means all
-
-int frame_count = 0;
-int frames_written = 0;
-
-char *output_file_template = 0;
-
 AVFormatContext *fmt_ctx = NULL;
 AVCodecContext *video_dec_ctx = NULL, *audio_dec_ctx;
 int width, height;
 enum AVPixelFormat pix_fmt;
 AVStream *video_stream = NULL, *audio_stream = NULL;
-const char *src_filename = NULL;
-const char *video_dst_filename = NULL;
-const char *audio_dst_filename = NULL;
-FILE *video_dst_file = NULL;
-FILE *audio_dst_file = NULL;
 
 uint8_t *video_dst_data[4] = {
 	NULL};
@@ -72,8 +56,6 @@ int video_dst_bufsize;
 int video_stream_idx = -1, audio_stream_idx = -1;
 AVFrame *frame = NULL;
 AVPacket pkt;
-int video_frame_count = 0;
-int audio_frame_count = 0;
 
 struct SwsContext *swsContext;
 AVFrame *pFrameRGB;
@@ -246,47 +228,8 @@ enum AVSampleFormat sample_fmt)
 	return -1;
 }
 
-int
-usage(void) {
-	fprintf(stderr, "usage: avsplit [-c frame-count] [-f first-frame] [-s seconds-per-frame] [-S] [-n] video-file filepattern\n");
-	return 1;
-}
-
-int 
-main (int argc, char **argv) {
-	int ret = 0, got_frame;
-
-	ARGBEGIN {
-	case 'c':	
-		count = atoi(ARGF());	// number of frames, 0=all
-		break;
-	case 'f':	
-		first = atoi(ARGF());	// first frame, default=0
-		break;
-	case 'n':		// suppress non-stats output
-		nflag++;	
-		break;
-	case 's':		// seconds per frame, default is 10
-		spf = atoi(ARGF());	
-		break;
-	case 'S':		// output stats
-		Sflag++;		
-		break;
-	default:
-		return usage();
-	} 
-	ARGEND;
-
-	if (argc != 2) {
-		return usage();
-	}
-	src_filename    = argv[0];
-	output_file_template = argv[1];
-
-	//    if (argc == 5 && !strcmp(argv[1], "-refcount")) {
-	//        refcount = 1;
-	//        argv++;
-	//   }
+void
+initvidio(char *src_file_name) {
 	av_register_all();
 
 	/* open input file, and allocate format context */
@@ -366,7 +309,9 @@ main (int argc, char **argv) {
 
 	/* read frames from the file */
 	ret = 0;
-	setlinebuf(stdout);
+
+}
+
 	while (ret > -2 && av_read_frame(fmt_ctx, &pkt) >= 0) {
 		AVPacket orig_pkt = pkt;
 		do {
@@ -392,4 +337,14 @@ main (int argc, char **argv) {
 	}
 
 	return 0;
+}
+
+void
+finish_vidio(void) {
+	/* flush cached frames */
+	pkt.data = NULL;
+	pkt.size = 0;
+	do {
+		decode_packet(&got_frame, 1);
+	} while (got_frame);
 }

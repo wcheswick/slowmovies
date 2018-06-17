@@ -171,8 +171,7 @@ do
 	all)	count=0;;
 	esac
 
-	avdecode -s $spf -f $first -c $count \
-		"$movie"/video.mp4 $CACHE/frame_%06d.pnm |
+	splitmovie -s $spf -f $first -c $count "$movie"/video.mp4 $CACHE |
 	while read frame
 	do
 		if [ ! -s $WRKDIR/pid ]

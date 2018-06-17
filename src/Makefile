@@ -1,26 +1,20 @@
-BIN=${HOME}/bin
 
-CFLAGS+=-I/opt/local/include -I/usr/local/include # -Wno-deprecated-declarations # -static
-LDFLAGS+=-L/usr/local/lib -lavcodec -lavutil -lavformat -lswscale -lpthread # -static
+BIN=$${HOME}/bin
 
-P=avdecode
+CFLAGS+=-I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration
+LDFLAGS+=-L/usr/local/lib -L/opt/local/lib
+LDFLAGS+=-lopencv_highgui -lopencv_core
+LDFLAGS+=-lopencv_video -lopencv_videostab -lopencv_imgproc -lm
 
-all::	${P}
+all::	splitmovie
 
-${P}:	${P}.o
-	${CC} ${CFLAGS} ${P}.o ${LDFLAGS} -o $@
+splitmovie:	splitmovie.c
+	${CC} ${CFLAGS} ${LDFLAGS} splitmovie.c -o $@
 
 clean::
-	rm -f *.o ${P}
+	rm -f *.o splitmovie
 
-install::	${BIN}/${P}
+install::	${BIN}/splitmovie
 
-${BIN}/avdecode:	${P}
-	-mkdir -p ${BIN}
-	cp ${P} $@
-
-test::		${P}
-	mkdir -p /var/tmp/test/
-	(cd /var/tmp/test; ls | xargs rm -f)
-	./${P} -f 500 -s 1 -c 10 /r/media/slowmovies/catalog/Ellivesdranreb/video.mp4 \
-		/var/tmp/test/frame_%08d.pnm
+${BIN}/splitmovie:	splitmovie
+	cp splitmovie $@

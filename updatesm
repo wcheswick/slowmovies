@@ -63,6 +63,7 @@ do
 	then
 		echo "$prog:	would remove movie:	$name" 1>&2
 	else
+# XXX maybe better not to delete movies that are just lower quality
 		echo "$prog:	removing old movie:	$name" 1>&2
 		rm -rf catalog/"$name"
 	fi

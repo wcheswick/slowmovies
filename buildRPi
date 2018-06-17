@@ -2,12 +2,18 @@ apt-get upgrade
 apt-get update
 sudo apt autoremove
 
+# we use opencv to split images off of movie files:
+sudo apt-get install libopencv-dev
+
+# I tried to use libav, but it is a morass:
 sudo apt-get install libav-tools
-apt-get install -y libavutil-dev 
-apt-get install -y libavfilter-dev 
-#apt-get install -y libavformat-dev 
-#apt-get install -y libsdl2-dev 
-#apt-get install -y libavcodec-dev 
+# apt-get install -y libavutil-dev 
+# apt-get install -y libavfilter-dev 
+# #apt-get install -y libavformat-dev 
+# #apt-get install -y libsdl2-dev 
+# #apt-get install -y libavcodec-dev 
+
+exit
 
 Add RPi HW accelleration, if you bought the key from the RPi folks.
 At the line to /boot/config.txt.

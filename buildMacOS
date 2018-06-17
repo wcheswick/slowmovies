@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+prog=buildMacOS
+usage=$prog
+#
+#- install macports.  This requires a little work, and xcode.
+#	I am not happy about this: I would rather distribute a 
+#	static binary to avoid this.  Mac ports install info:
+#
+#https://www.macports.org/install.php
+
+if [ ! -n "`which port`" ]
+then
+	echo "$prog:	mac ports must be installed to build software" 1>&2
+	echo "		https://www.macports.org/install.php" 1>&2
+	exit 1
+
+	# these should be done periodically, but are not our problem
+	sudo port selfupdate		|| exit 2
+	sudo port upgrade outdated	|| exit 3
+fi
+
+
+sudo port install opencv
+
+exit 13
+
+sudo pkg install libav
+
+cd src
+make install	|| exit 10
