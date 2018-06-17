@@ -41,6 +41,7 @@ do
 	fi
 done
 
+(cd src; make install)
 
 # Set up .xinitrc to start up things
 
