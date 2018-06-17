@@ -1,5 +1,4 @@
-
-BIN=$${HOME}/bin
+BIN=${HOME}/bin
 
 CFLAGS+=-I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration
 LDFLAGS+=-L/usr/local/lib -L/opt/local/lib
