@@ -97,7 +97,7 @@ main (int argc, char **argv) {
 
 	input = cvCaptureFromFile(src_file_name);
 	if (input == NULL) {
-		perror("Opening movie");
+		fprintf(stderr, "splitmovie: file not found: %s\n", src_file_name);
 		return 2;
 	}
 
@@ -143,12 +143,10 @@ main (int argc, char **argv) {
 
 	cvReleaseCapture(&input);
 
-#ifdef notdef
 	if (Sflag) {	// show stats
-		printf("Frames: %d	w: %d	h: %d\n",
-			frame_count, width, height);
+		printf("Frame encountered: %ld	shown: %ld\n",
+			frame_number, frame_count);
 	}
-#endif
 
 	return 0;
 }
