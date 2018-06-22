@@ -3,6 +3,8 @@ apt-get update
 sudo apt autoremove
 
 # we use opencv to split images off of movie files:
+sudo apt-get install cmake
+
 sudo apt-get install libopencv-dev
 
 # I tried to use libav, but it is a morass:

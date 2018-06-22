@@ -1,0 +1,64 @@
+So far, opencv on FreeBSD doesn't work.  pkg installed opencv2, and
+the installation and compilation here work. But the first open of the
+video file returns NULL.  Opencv, in its incompetence, returns no further
+information.   
+
+I *think* it is missing some modules, perhaps relating to v4l.  
+
+The two libraries that were used in an older version,
+	-lopencv_imgcodecs -lopencv_videoio
+are not found, and are perhaps part of ffmpeg?
+
+pkg-config generates the following from the pkg install:
+$ pkg-config --libs --cflags opencv
+-I/usr/local/include/opencv -I/usr/local/include -L/usr/local/lib -lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_objdetect -lopencv_ocl -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videostab -ltbb -lpthread -lm 
+
+--
+Generating opencv from ports is another option, and there are a lot of configuration
+options.  I turned most of them on, which might give a more-complete installation.
+The port built and installed without apparent problems.
+
+The two libraries are still missing:
+$ make clean && make && make cv_test
+rm -f *.o cv_split av_split
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -c split.c -o split.o
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -c cv_io.c -o cv_io.o
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -I/usr/local/include/opencv -I/usr/local/include -L/usr/local/lib -lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_objdetect -lopencv_ocl -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videostab -ltbb -lpthread -lm   -L/usr/local/lib -L/opt/local/lib -lopencv_videoio split.o cv_io.o -o cv_split
+/usr/bin/ld: cannot find -lopencv_videoio
+cc: error: linker command failed with exit code 1 (use -v to see invocation)
+*** Error code 1
+
+The Interwebs are not helpful will all of this.  They are clear, however: opencv
+support for C is waning, and C++ is a must.  I may have to go to this.  There
+is also a possibility of using python versions of opencv.  Since the program
+is easy, that may be the simplest way to go.
+
+
+It is also possible that openimagio is needed.  But pkg says that is already
+installed and up-to-date. Building that from the ports graphic tree works and
+installs.
+
+It makes no difference.
+
+=====
+
+sudo pkg install libav
+
+Hmm.  codecs, again:
+
+seismo:~/git/slowmovies/src$ make clean && make && make av_test
+rm -f *.o cv_split av_split
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -c split.c -o split.o
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -c cv_io.c -o cv_io.o
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -I/usr/local/include/opencv -I/usr/local/include -L/usr/local/lib -lopencv_calib3d -lopencv_contrib -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_objdetect -lopencv_ocl -lopencv_photo -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videostab -ltbb -lpthread -lm   -L/usr/local/lib -L/opt/local/lib  split.o cv_io.o -o cv_split
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -c av_io.c -o av_io.o
+cc -O2 -pipe -I/opt/local/include -I/usr/local/include -Wno-implicit-function-declaration -lavcodec -lavutil -lavformat -lswscale -lpthread  -L/usr/local/lib -L/opt/local/lib split.o av_io.o -o av_split
+./av_split -S -s 2 -f 0 -c 10 /r/media/slowmovies/catalog/Ellivesdranreb/video.mp4 /var/tmp
+Codec not found
+
+
+Try
+sudo pkg install ffmpeg
+they seem to share libraries
+
+nope.
