@@ -38,7 +38,7 @@ SLOWSTAGE=$HOME/tmp/slowstage
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 
 
-smadd "Pool rain" \
+smadd -q 3 "Pool rain" \
         "Spring rain falling in a pool" \
                 /r/media/videos/Etc/RainInThePool/GOPR4123.MP4
 

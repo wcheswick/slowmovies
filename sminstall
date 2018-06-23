@@ -15,14 +15,14 @@ fi
 
 for p in ffmpeg imagemagick w9wm xterm
 do
-	if [ ! -n `which $p` ]
+	if [ ! -n "`which $p`" ]
 	then
 		case `uname` in
 		Linux)
 			sudo apt-get install -y $p	|| exit 10
 			;;
 		FreeBSD)
-			sudo sudo pkg -y install $p
+			sudo sudo pkg install -y $p	|| exit 11
 			;;
 		Darwin)
 			# stub
@@ -49,8 +49,6 @@ Linux)		splitter=av;;
 *)
 	splitter=cv
 esac
-
-set -x
 
 (cd src;
 	make ${splitter}_install)
