@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-prog=createsm
+prog=smcreate
 usage="$prog [-F]"
 #
 #	(re)install all our movies, or the ones that are new or changed.
@@ -24,7 +24,7 @@ then
 	exit 1
 fi
 
-. slowdefs	|| exit 99
+. smdefs	|| exit 99
 
 if [ -n "$force" ]
 then
@@ -37,160 +37,165 @@ SLOWSTAGE=$HOME/tmp/slowstage
 
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 
+
+smadd "Pool rain" \
+        "Spring rain falling in a pool" \
+                /r/media/videos/Etc/RainInThePool/.MP4
+
 # long black frames at start:
-addsm -q 3 "Leaving the Adirondacks" \
+smadd -q 3 "Leaving the Adirondacks" \
 	"An evening's departure from Sabbatis to points south." \
 		$TIME_LAPSE/adirondacks.mov
 
-addsm -s 3 -q 2 "Surfside sunset" \
+smadd -s 3 -q 2 "Surfside sunset" \
 	"Surfside sunset" \
 		/r/media/videos/ACK/Surfside/sunset-raw/*.MP4
 
 # Needs to start at least after 41, 69 is good
-addsm -f 41 -q 3 "Hana Road westbound" \
+smadd -f 41 -q 3 "Hana Road westbound" \
 	"24 times slower." \
 		$SLOWSTAGE/HanaRoadWB/*.avi
 
 ## surfside beach ##
 
-addsm -q 2 "Sand castle 1" \
+smadd -q 2 "Sand castle 1" \
 	"Ches sandcastle in a tidal pool" \
 		/r/media/videos/ACK/Surfside/castle-1/*.MP4
 
-addsm -q 4 "Sand castle 2" \
+smadd -q 4 "Sand castle 2" \
 	"Ches sandcastle in a tidal pool" \
 		/r/media/videos/ACK/Surfside/castle-2/*.MP4
 
-addsm -q 5 "Surfside beach" \
+smadd -q 5 "Surfside beach" \
 	"Surfside beach" \
 		/r/media/videos/ACK/Surfside/wet-1.MP4
 
-addsm -f 700 -q 4 "Surfside beach surf" \
+smadd -f 700 -q 4 "Surfside beach surf" \
 	"Surfside beach surf" \
 		/r/media/videos/ACK/Surfside/wet-2.MP4
 
-addsm "Surfside beach pool" \
+smadd "Surfside beach pool" \
         "Surfside beach pool" \
                 /r/media/videos/ACK/Surfside/wet-3/wet3-[ab].MP4
 
-addsm -f 200 -q 5 "NJ-approved firework" \
+smadd -f 200 -q 5 "NJ-approved firework" \
 	"Now that fireworks are legal in NJ, we can watch one." \
 		/r/media/videos/Fireworks/NJFireworksLarge.mp4
 
-addsm -q 2 "2011 fireworks" \
+smadd -q 2 "2011 fireworks" \
 	"A fireworks display from 2011 at the Somerset Hills Gold course." \
 		/r/media/videos/Fireworks/fireworks2011-[12].mp4
 
-addsm -q 2 "Mousecam" \
+smadd -q 2 "Mousecam" \
 	"A mouse investigates a Have-A-Heart trap, under infrared lighting." \
 		/r/media/videos/Etc/mousecam.mpg
 
-addsm -f 3 -q 2 "Across the Rockies" \
+smadd -f 3 -q 2 "Across the Rockies" \
 	"Driving through the Rockies." \
 		/r/media/videos/EnRoute/Driving/TeslaToCA/AcrossTheRockies/*.mp4
 
-addsm -q 3 "Asilomar" \
+smadd -q 3 "Asilomar" \
 	"A drone's view of the Asilomar Conference Center." \
 			$SLOWSTAGE/Asilomar/*.mp4
-addsm -q 3 -s 935 "Asilomar Beach" \
+smadd -q 3 -s 935 "Asilomar Beach" \
 	"A drone's view of the ocean near Asilomar." \
 		$SLOWSTAGE/AsilomarBeach/*.mp4
 
 # nice morning view:
 # susie in the first shots. frame 30 is fine
-addsm -q 4 "Moab to Canyonlands" \
+smadd -q 4 "Moab to Canyonlands" \
 	"A sunrise trip to the Canyonlands lookup" \
 		$SLOWSTAGE/MoabToCanyonlands/*.mp4
 
-addsm -q 2 "It is flat" \
+smadd -q 2 "It is flat" \
 	"Timelapse drive through Kansas." \
 		$SLOWSTAGE/ItsFlat/*.mp4
 
 ## original is time-lapsed
-#addsm -f 660 "Westover to Sacramento" \
+#smadd -f 660 "Westover to Sacramento" \
 #	"Westover to Sacramento" \
 #		$SLOWSTAGE/NearSacramento/*.mp4
 
-addsm -q 3 "Nevada to Davis via SAC" \
+smadd -q 3 "Nevada to Davis via SAC" \
 	"Nevada to Davis via SAC" \
 		/r/media/videos/EnRoute/Driving/TeslaToCA/NevadaToDavis/*.mp4
-addsm -q 3 "Rockies Road" \
+smadd -q 3 "Rockies Road" \
 	"A drive into the Rockies." \
 		$SLOWSTAGE/RockiesRoad/*.mp4
-addsm -q 3 "Into Utah" \
+smadd -q 3 "Into Utah" \
 	"Time lapse driving from Colorado into Utah." \
 		$SLOWSTAGE/ToUtah/*.mp4
 
 # old time lapse, 4x3, terry sand castles
-addsm -q 3 "Early sand castles" \
+smadd -q 3 "Early sand castles" \
 	"Terry castles in a tidal pool" \
 		$TIME_LAPSE/beach.mpg
-addsm -q 2 "I-287 North" \
+smadd -q 2 "I-287 North" \
 	"A high-speed drive on I-287 north to I-87." \
 		$TIME_LAPSE/bville-north-clip.mov
-addsm -q 2 "My Old Commute to FP" \
+smadd -q 2 "My Old Commute to FP" \
 	"My old commute to work." \
 		$TIME_LAPSE/commute.mov
 # no, not Darien. North from bville:
-#addsm "Around Darien"	\
+#smadd "Around Darien"	\
 #	"A drive around my old hometown, Darien, CT." \
 #		$TIME_LAPSE/darien.mov
 
-addsm -q 4 "Ellivesdranreb" \
+smadd -q 4 "Ellivesdranreb" \
 	"A safe but confusing Sunday drive around the block." \
 		$TIME_LAPSE/ellivsdranreb.mov
 
 # boring, all cloudy
-addsm -q 0 "EWR to ORD test" ""		$TIME_LAPSE/ewr-ord-test.mov
+smadd -q 0 "EWR to ORD test" ""		$TIME_LAPSE/ewr-ord-test.mov
 
-addsm -q 2 "West over the Sierras" \
+smadd -q 2 "West over the Sierras" \
 	"Time lapse window seat into the bay area" \
 		 $TIME_LAPSE/gowest.mov
 
 # Needs higher res:
 # not the whole deal
-#addsm "East from Key West" \
+#smadd "East from Key West" \
 #	"A drive to the mainland at Mach 1." \
 #		$TIME_LAPSE/key-west-east.mov
 
-addsm -q 3 "From Key West to the Mainland at Mach 20" \
+smadd -q 3 "From Key West to the Mainland at Mach 20" \
 	"" \
 		$TIME_LAPSE/keys-eastbound.mov
 
 # not very interesting
-#./addsm "A lava lamp"			$TIME_LAPSE/lavalamp.mpeg
+#./smadd "A lava lamp"			$TIME_LAPSE/lavalamp.mpeg
 # poor video:
-#./addsm "Moonrise in Nantucket"		$TIME_LAPSE/moonrise.mpeg
+#./smadd "Moonrise in Nantucket"		$TIME_LAPSE/moonrise.mpeg
 
-addsm -q 2 "ORD to SFO test" \
+smadd -q 2 "ORD to SFO test" \
 	"The windowseat view from O'Hare to SFO." \
 		$TIME_LAPSE/ord-sfo-test.mov
 # poor resolution:
-#addsm "Restroom" \
+#smadd "Restroom" \
 #	"An early timelapse of a public restroom area in Nantucket." \
 #		$TIME_LAPSE/rest60.mpg
 # original, from irix:
-addsm -q 1 "Restroom" \
+smadd -q 1 "Restroom" \
 	"An early timelapse of a public restroom area in Nantucket." \
 		/r/media/videos/mv/rest60.mpg
 
 # a test, but not interesting:
-#./addsm "Reverse"			$TIME_LAPSE/reverse.mov
-addsm -q 1 "iChat" "T and K on iChat"	$TIME_LAPSE/slow.mov
+#./smadd "Reverse"			$TIME_LAPSE/reverse.mov
+smadd -q 1 "iChat" "T and K on iChat"	$TIME_LAPSE/slow.mov
 
-#./addsm "Fast solitaire" \
+#./smadd "Fast solitaire" \
 #	"Slowly." \
 #		$TIME_LAPSE/solitaire.mov
 
 ARCHIVES=$HOME/tmp/slowstage/archives
 # really poor video, both seem identical
-#./addsm -f 550 "Sand castle 0"			$ARCHIVES/castle0.mv
-#./addsm "Sand castle 1"			$ARCHIVES/castle1.mv
+#./smadd -f 550 "Sand castle 0"			$ARCHIVES/castle0.mv
+#./smadd "Sand castle 1"			$ARCHIVES/castle1.mv
 
 # windowseat
 WINDOWSEAT=$HOME/tmp/slowstage/windowseat/SFO-EWR
 # not loaded yet
-#./addsm "SFO-EWR, the windowseat"	$WINDOWSEAT/GOPR2216.MP4 $WINDOWSEAT/GO0*
+#./smadd "SFO-EWR, the windowseat"	$WINDOWSEAT/GOPR2216.MP4 $WINDOWSEAT/GO0*
 
-indexsm -s
+smindex -s
 

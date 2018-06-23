@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-prog=indexsm
+prog=smindex
 usage="$prog [-s]"
 #
 #	Update the index of the current slow movies
 
-. slowdefs	|| exit 99
+. smdefs	|| exit 99
 
 summary=
 while [ $# -gt 0 ]

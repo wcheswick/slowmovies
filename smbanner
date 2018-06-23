@@ -5,7 +5,7 @@ usage="usage: $prog title subtext output.png"
 #
 #	Needs pdflatex and the beamer package
 
-. slowdefs
+. smdefs
 
 mkdir -p $WRKDIR        || exit 100
 rm -rf $WRKDIR/*

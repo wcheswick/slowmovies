@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-prog=setupsm
+prog=smsetup
 #
 #	Figure out basics for displaying the slow movies
 #
 
-. slowdefs	|| exit 99
+. smdefs	|| exit 99
 
 case `uname` in
 Linux)

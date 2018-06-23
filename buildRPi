@@ -29,7 +29,7 @@ localization stuff, the usual
 
 git clone https://github.com/wcheswick/slowmovies.git
 cd slowmovies/
-./installsm	# note leading period
+./sminstall	# note leading period
 
 RPi:
 

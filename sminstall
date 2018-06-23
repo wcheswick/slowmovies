@@ -31,7 +31,7 @@ do
 	fi
 done
 
-progs="addsm updatesm playsm indexsm smbanner startsm setupsm slowdefs"
+progs="smadd smupdate smplay smindex smbanner smstart smsetup smcreate smdefs"
 
 for i in $progs
 do
@@ -45,7 +45,7 @@ done
 
 # Set up .xinitrc to start up things
 
-if ! egrep 'startsm' $HOME/.xinitrc >/dev/null
+if ! egrep 'smstart' $HOME/.xinitrc >/dev/null
 then
 	cat <<!EOF >$HOME/.xinitrc
 #!/bin/sh
@@ -53,7 +53,7 @@ then
 xsetroot -solid darkblue -cursor_name top_left_arrow
 xset s off -dpms
 
-startsm -r -a -n &
+smstart -r -a -n &
 
 exec w9wm -term xterm
 !EOF
@@ -73,7 +73,7 @@ esac
 !EOF
 fi
 
-. slowdefs	|| exit 99
+. smdefs	|| exit 99
 
 if [ ! -s $LOG ]
 then

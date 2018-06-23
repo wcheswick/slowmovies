@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-prog=startsm
-usage="$prog [playsm-params]"
+prog=smstart
+usage="$prog [smplay-params]"
 #
 #	Default: play everything we haven't seen before, randomly
 
-. setupsm	|| exit 99
+. smsetup	|| exit 99
 
 if [ -s $LOCAL_MOVIE_LIB/banner.png ]	# show sm logo page
 then
@@ -13,10 +13,10 @@ then
 fi
 
 #  user does this
-# nice updatesm -q 3 &	# make sure things are current, but do it in background
+# nice smupdate -q 3 &	# make sure things are current, but do it in background
 
 case $# in
-0)	playsm -a -r -n;;
-*)	playsm "$@"
+0)	smplay -a -r -n;;
+*)	smplay "$@"
 esac
 

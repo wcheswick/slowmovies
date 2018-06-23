@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-prog=updatesm
+prog=smupdate
 usage="usage: $prog [-n] [-q q]"
 #
 #	Check the mother site for movies we don't have.
@@ -30,7 +30,7 @@ then
 	exit 1
 fi
 
-. slowdefs	|| exit 99
+. smdefs	|| exit 99
 
 mkdir -p $WRKDIR        || exit 100
 rm -rf $WRKDIR/*

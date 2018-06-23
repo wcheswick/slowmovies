@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-prog=addmovie
+prog=smadd
 usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] [-q quality] title subtitle i1 i2 ..."
 #
 #	Add a movie named "name" to our catalog.  It consists of one or
@@ -16,7 +16,7 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] [-q quality] title 
 #
 #	-F	force rebuild of given movies
 
-. slowdefs	|| exit 99
+. smdefs	|| exit 99
 
 nspf=10
 nfirst=0
@@ -112,4 +112,4 @@ updated=$updated
 !EOF
 chmod +x info
 
-indexsm
+smindex
