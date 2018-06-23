@@ -33,10 +33,13 @@ install::	${BIN}/cv_split ${BIN}/av_split
 
 ${BIN}/cv_split:	cv_split
 	cp cv_split $@
+	rm -f ${BIN}/smsplit
+	ln ${BIN}/cv_split ${BIN}/smsplit
 
 ${BIN}/av_split:	av_split
 	cp av_split $@
-
+	rm -f ${BIN}/smsplit
+	ln ${BIN}/av_split ${BIN}/smsplit
 
 cv_test::	cv_split
 	./cv_split -S -s 2 -f 0 -c 10 /r/media/slowmovies/catalog/Ellivesdranreb/video.mp4 /var/tmp

@@ -40,7 +40,7 @@ TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 
 smadd "Pool rain" \
         "Spring rain falling in a pool" \
-                /r/media/videos/Etc/RainInThePool/.MP4
+                /r/media/videos/Etc/RainInThePool/GOPR4123.MP4
 
 # long black frames at start:
 smadd -q 3 "Leaving the Adirondacks" \
