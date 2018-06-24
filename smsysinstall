@@ -15,11 +15,14 @@ fi
 
 case `uname` in
 Linux)
-	if [ ! -n "`which ffmpeg`" ]
+	if [ ! -n "`which ffmpeg`" ]	# this is for av
 	then
 		sudo apt-get install -y libav-tools libavutil-dev \
 			libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev
 	fi
+
+	# for cv:
+	# sudo apt-get install libopencv-dev	# this brings in lots!
 
 	if [ ! -n "`which display`" ]
 	then
@@ -34,7 +37,8 @@ Linux)
 		fi
 	done
 
-	splitter=av
+#	splitter=av
+	splitter=cv
 	;;
 FreeBSD)
 	splitter=cv

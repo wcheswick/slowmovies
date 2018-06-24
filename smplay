@@ -67,7 +67,6 @@ do
 			then
 				echo "$movie_name"
 			fi
-			shift
 		done | sort -u >$WRKDIR/toplay
 		break;;
 	-k)
@@ -177,17 +176,17 @@ do
 		if [ ! -s $WRKDIR/pid ]
 		then
 			log "$prog:	** terminated **"
-			break
+			exit 9
 		elif [ `sed 1q $WRKDIR/pid` != $our_pid ]
 		then
 			log "$prog:	** Terminated **"
-			break
+			exit 9
 		fi
 
 		if [ -s $frame ]
 		then
 			echo "---- show_frame" "$frame"
-			show_frame "$frame"
+			show_frame "$frame"	|| exit 99
 			cp $frame /tmp/lastframe.pnm
 			rm -f "$frame"
 		else

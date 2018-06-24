@@ -4,8 +4,8 @@ CFLAGS+=-I/opt/local/include -I/usr/local/include -Wno-implicit-function-declara
 LDFLAGS+=-L/usr/local/lib -L/opt/local/lib
 
 #CV_LDFLAGS!=pkg-config --libs --cflags opencv
-#CV_LDFLAGS+=-lopencv_highgui -lopencv_core -lopencv_imgcodecs # -lopencv_videoio
-#CV_LDFLAGS+=-lopencv_video -lopencv_videostab -lopencv_imgproc -lm
+CV_LDFLAGS+=-lopencv_highgui -lopencv_core # -lopencv_videoio -lopencv_imgcodecs
+CV_LDFLAGS+=-lopencv_video -lopencv_videostab -lopencv_imgproc -lm
 
 AV_LDFLAGS+=-lavcodec -lavutil -lavformat -lswscale -lpthread
 
