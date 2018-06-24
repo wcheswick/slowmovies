@@ -13,26 +13,8 @@ then
 	mkdir -p ${BIN}	|| exit 1
 fi
 
-for p in ffmpeg w9wm xterm	#  imagemagick
-do
-	if [ ! -n "`which $p`" ]
-	then
-		case `uname` in
-		Linux)
-			sudo apt-get install -y $p	|| exit 10
-			;;
-		FreeBSD)
-			sudo sudo pkg install -y $p	|| exit 11
-			;;
-		Darwin)
-			# stub
-			;;
-		esac
-	fi
-done
-
 progs="smadd smupdate smplay smindex smbanner smstart \
-	sminstall smsetup smcreate smdefs"
+	sminstall smsysinstall smsetup smcreate smdefs"
 
 for i in $progs
 do
@@ -41,17 +23,6 @@ do
 		cp $i $BIN/$i	|| exit 2
 	fi
 done
-
-case `uname` in 
-FreeBSD)	splitter=cv;;
-Linux)		splitter=av;;
-##Darwin)
-*)
-	splitter=cv
-esac
-
-(cd src;
-	make ${splitter}_install)
 
 # Set up .xinitrc to start up things
 
@@ -83,7 +54,7 @@ esac
 !EOF
 fi
 
-. smdefs	|| exit 99
+. ./smdefs	|| exit 99
 
 if [ ! -s $LOG ]
 then

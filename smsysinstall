@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+prog=smsysinstall
+usage=$prog
+#
+#	Try to load the various libraries we need to use our stuff.
+#	This can be brittle.
+
+BIN=$HOME/bin
+
+if [ ! -d $BIN ]
+then
+	mkdir -p ${BIN}	|| exit 1
+fi
+
+case `uname` in
+Linux)
+	if [ ! -n "`which ffmpeg`" ]
+	then
+		sudo apt-get install -y libav-tools libavutil-dev \
+			libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev
+	fi
+
+	for i in w9wm xterm
+	do
+		if [ ! -n "`which $i`" ]
+		then
+			sudo apt-get install -y $i
+		fi
+	done
+	splitter=av
+	;;
+FreeBSD)
+	splitter=cv
+	;;
+Darwin)
+	splitter=av
+	exit 15;;
+*)
+	exit 16
+esac
+
+cd src
+make ${splitter}_install
