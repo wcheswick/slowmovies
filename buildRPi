@@ -1,7 +1,74 @@
+# Steps I have used to make a stand-alone slow movie display on
+# a Raspberry Pi.
+
+- get a fresh download of Raspbian, and load it onto an SSD.
+
+I did this on a Mac:
+
+download raspbian:
+https://www.raspberrypi.org/downloads/raspbian/
+unzip it
+
+diskutil unmountDisk disk8
+sudo dd if=Desktop/2018-04-18-raspbian-stretch.img of=/dev/rdisk8 bs=10000k
+
+This creates a fresh boot disk for the RPi.
+
+
+Install the SSD, and boot it up.  It will need network access of some sort.  I
+use WiFi, since the screen is not near an Ethernet port.
+
+pi@sm:/etc/network $ cat interfaces
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+auto wlan0
+iface wlan0 inet dhcp
+        wpa-conf /etc/wpa_supplicant/Ches.conf
+
+
+
+pi@sm:/etc/wpa_supplicant $ cat Ches.conf 
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+        ssid="Ches"
+        psk="my secret pw"
+        proto=RSN
+        key_mgmt=WPA-PSK
+        pairwise=CCMP
+        auth_alg=OPEN
+}
+
 apt-get upgrade
 apt-get update
 sudo apt autoremove
 
+run raspi-config and do the usual stuff:
+raspi-conf:
+host name
+wifi?
+maybe audio
+maybe ssh
+localization stuff, the usual
+autoboot to console, user "pi".  We do this whole thing on that account.
+Change the default password for account "pi"
+
+
+Add RPi HW accelleration, if you bought the key from the RPi folks.
+At the line to /boot/config.txt.
+
+- We need git to fetch the slowmovie stuff, and start the installation.
+
+apt-get install -y git
+
+===============
 # we use opencv to split images off of movie files:
 sudo apt-get install cmake
 
@@ -17,15 +84,6 @@ sudo apt-get install libav-tools
 
 exit
 
-Add RPi HW accelleration, if you bought the key from the RPi folks.
-At the line to /boot/config.txt.
-
-raspi-conf:
-host name
-wifi?
-maybe audio
-maybe ssh
-localization stuff, the usual
 
 git clone https://github.com/wcheswick/slowmovies.git
 cd slowmovies/

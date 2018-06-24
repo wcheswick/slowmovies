@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 prog=smupdate
-usage="usage: $prog [-n] [-q q]"
+usage="usage: $prog [-n] [-q <0-5>]"
 #
 #	Check the mother site for movies we don't have.
 #
@@ -12,12 +12,12 @@ usage="usage: $prog [-n] [-q q]"
 export PATH=$PATH:$HOME/bin
 
 nochange=
-lowestq=0
+q=
 while [ $# -gt 0 ]
 do
 	case "$1" in
 	-n)	shift; nochange=true;;
-	-q)	shift; lowestq=$1; shift;;
+	-q)	shift; q=$1; shift;;
 	-*)	echo "$usage" 1>&2
 		exit 1;;
 	*)	break
@@ -36,6 +36,25 @@ mkdir -p $WRKDIR        || exit 100
 rm -rf $WRKDIR/*
 
 cd $LOCAL_MOVIE_LIB	|| exit 1
+
+# Use previous movie quality setting, or set default if none
+
+case "$q" in	# determine movie quality
+"")	if [ ! -s $LOCAL_MOVIE_QUALITY ]
+	then
+		echo "$DEFAULT_QUALITY" >$LOCAL_MOVIE_QUALITY
+	fi
+	;;
+
+[0-5])	echo "$q"  >$LOCAL_MOVIE_QUALITY;;
+*)
+	echo "$usage" 1>&2
+	exit 2
+esac
+
+q=`sed 1q $LOCAL_MOVIE_QUALITY`
+
+echo "$prog:	movie quality setting is $q" 1>&2
 
 curl -s "$MOVIE_INDEX_URL" -o index || exit 2	# our list of movies
 curl -s "$MOVIE_BANNER_URL" -o banner.png || exit 3	# project banner

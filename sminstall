@@ -13,7 +13,7 @@ then
 	mkdir -p ${BIN}	|| exit 1
 fi
 
-for p in ffmpeg imagemagick w9wm xterm
+for p in ffmpeg w9wm xterm	#  imagemagick
 do
 	if [ ! -n "`which $p`" ]
 	then

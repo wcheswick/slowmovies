@@ -8,12 +8,16 @@ MASTER_CATALOG_DIR=$MASTER_SLOW_MEDIA_DIR/catalog
 
 LOCAL_MOVIE_LIB=$HOME/lib/slow_movies
 LOCAL_MOVIE_CATALOG=$LOCAL_MOVIE_LIB/catalog
+LOCAL_MOVIE_QUALITY=$LOCAL_MOVIE_LIB/quality
+
+DEFAULT_QUALITY=3
 
 MOVIE_URL="http://slowmovies.cheswick.com"
 MOVIE_CATALOG_URL=$MOVIE_URL/catalog
 MOVIE_INDEX_URL=$MOVIE_URL/index
 MOVIE_BANNER_URL=$MOVIE_URL/banner.png
 
+# These are unused at the moment:
 CURRENT_MOVIE=$LOCAL_MOVIE_LIB/current_movie	# index in MOVIE_LIST, starting at 1*
 CURRENT_REEL=$LOCAL_MOVIE_LIB/current_reel
 CURRENT_FRAME=$LOCAL_MOVIE_LIB/current_frame
