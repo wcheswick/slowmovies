@@ -21,6 +21,11 @@ Linux)
 			libavfilter-dev libavformat-dev libavcodec-dev libswscale-dev
 	fi
 
+	if [ ! -n "`which display`" ]
+	then
+		sudo apt-get install -y imagemagick
+	fi
+
 	for i in w9wm xterm
 	do
 		if [ ! -n "`which $i`" ]
@@ -28,6 +33,7 @@ Linux)
 			sudo apt-get install -y $i
 		fi
 	done
+
 	splitter=av
 	;;
 FreeBSD)

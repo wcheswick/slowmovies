@@ -25,9 +25,9 @@ FreeBSD)
 	smstyle=desktop
 esac
 
-if [ ! -n "`which avdecode`" ]
+if [ ! -n "`which smsplit`" ]
 then
-	echo "$prog:	avdecode missing, needs installation" 1>&2
+	echo "$prog:	smsplit missing, needs installation" 1>&2
 	exit 1
 fi
 

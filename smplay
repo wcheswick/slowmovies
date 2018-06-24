@@ -171,7 +171,7 @@ do
 	all)	count=0;;
 	esac
 
-	splitmovie -s $spf -f $first -c $count "$movie"/video.mp4 $CACHE |
+	smsplit -s $spf -f $first -c $count "$movie"/video.mp4 $CACHE |
 	while read frame
 	do
 		if [ ! -s $WRKDIR/pid ]
