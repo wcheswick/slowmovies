@@ -96,6 +96,15 @@ web source of slowmovies.  It is configured for mine, but it is easy
 to supply your own video and info files. Then
 
 
+Install system libraries
+
+We need some packages installed into the host system, and this can be difficult.
+(See the whinging below).  The script 
+	./smsysinstall
+tries to install the right stuff for the current system.  This is brittle, and
+may require more expertise than I like.
+
+
 The window system
 
 Slowmovies run on X on Linux and FreeBSD systems, currently updating the screen
