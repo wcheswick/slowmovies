@@ -13,61 +13,201 @@ diskutil unmountDisk disk8
 sudo dd if=Desktop/2018-04-18-raspbian-stretch.img of=/dev/rdisk8 bs=10000k
 
 This creates a fresh boot disk for the RPi.
+=====
 
+Installsm
 
-Install the SSD, and boot it up.  It will need network access of some sort.  I
-use WiFi, since the screen is not near an Ethernet port.
+Hostname
+Pi pw
 
-pi@sm:/etc/network $ cat interfaces
-# interfaces(5) file used by ifup(8) and ifdown(8)
+Cli not desktop
+Locale stuff
+Enable ssh
+Rpi-update not a bad ideal
+Might help to install RPi hardward key for mpeg, if appropriate
 
-# Please note that this file is written to be used with dhcpcd
-# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+=====
+Install the SSD, and boot it up. Run raspi-config for the usual
+RPi installation stuff.  Some of the items I use:
 
-# Include files from /etc/network/interfaces.d:
-source-directory /etc/network/interfaces.d
+Set hostname, change pi's password.  I am installing the slowmovie stuff
+into the pi account and login.
 
-auto wlan0
-iface wlan0 inet dhcp
-        wpa-conf /etc/wpa_supplicant/Ches.conf
+Change to the cli boot to pi, not the desktop.
+Set the local stuff, including language, time zone, keyboard, etc.
 
+Tell the system to expand the SSD disk on the next boot. These slowmovie files
+are hi-res and can go on for gigabytes.
 
+Enable ssh.  (See below for suggestions.)
 
-pi@sm:/etc/wpa_supplicant $ cat Ches.conf 
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
+Configure network.  I use WiFi, since the screens are usually not mounted near
+an Ethernet wire.
 
-network={
-        ssid="Ches"
-        psk="my secret pw"
-        proto=RSN
-        key_mgmt=WPA-PSK
-        pairwise=CCMP
-        auth_alg=OPEN
-}
+Reboot, and bring the system up-to-date:
 
-apt-get upgrade
-apt-get update
+sudo apt-get upgrade
+sudo apt-get update
 sudo apt autoremove
-
-run raspi-config and do the usual stuff:
-raspi-conf:
-host name
-wifi?
-maybe audio
-maybe ssh
-localization stuff, the usual
-autoboot to console, user "pi".  We do this whole thing on that account.
-Change the default password for account "pi"
-
+sudo rpi-update
 
 Add RPi HW accelleration, if you bought the key from the RPi folks.
-At the line to /boot/config.txt.
+I don't know if it actually helps.  We aren't doing much CPU-heavy stuff
+showing movies at 10 seconds per frame.
+Add the line to /boot/config.txt.
 
-- We need git to fetch the slowmovie stuff, and start the installation.
+reboot
 
-apt-get install -y git
+By this time, I have installed my favorite line editor:
 
+sudo apt-get install jove.
+
+More ssh stuff:
+
+I like to do most of the configuration off my favorite machine, not on
+the RPi screen. I create pi's .ssh directory and put my id_ed25519.pub key in there.
+Test that.  When it works, edit /etc/ssh/sshd_config to disable password logins.
+(This is a good idea in general, not needed for slowmovies):
+	- PasswordAuthentication no
+	- UsePAM no
+
+Security considerations.
+
+Of course, from a security standpoint, there is still a lot of other crap running
+that is probably not particularly safe.  And the software tools I use are very complex
+and probably full of hold that an evil video file can exploit.  Situate this
+machine on your networks appropriately. After the movies are loading, the system
+can run just fine unconnected to the network. Reconnect the machine only to
+update the software or adjust the movie library
+
+====
+
+OK, the system is pretty much ready for the slowmovie stuff.  But we need git
+to get the software and installation tools:
+
+sudo apt-get install -y git
+
+mkdir slowmovies	# in pi's home directory
+git clone https://githug.com/wcheswick/slowmovies.git
+cd slowmovies
+
+Check out smdefs, which contains directory locations, defaults, and the
+web source of slowmovies.  It is configured for mine, but it is easy
+to supply your own video and info files. Then
+
+
+The window system
+
+Slowmovies run on X on Linux and FreeBSD systems, currently updating the screen
+background.  For a stand-alone system, the .profile and startup stuff need
+to start the software.  The install uses the w9wm window system, a Unix version
+of the old, simple Plan 9 window system. But you can change this to run anything
+you want: there is nothing special about w9wm.
+
+sminstall will create a $HOME/.xinitrc file if it can't find one, or the existing
+one doesn't contain the string "smstart" somewhere.
+
+Similarly, $HOME/.profile will be moified if it doesn't contain "startx".
+
+With this in mind, cd to the slowmovie directory and run:
+
+./sminstall	# note leading period
+
+This will create the various directories, and try to install/build the software
+that is needed.
+
+This is doubtless brittle at this point, and you might have to fiddle with things.
+Bugs/corrections are welcome.
+
+
+Principles of Operation
+
+The basic idea is to display hi-res movie frames very slowly someplace.  Think
+of it as a slightly-changing desktop background.  The idea is to have a nice 
+image, have it change slowly enough that it isn't distracting, but it is worth
+checking from time to time to see what is going on.  
+
+So it chooses a video from a collection, and displays it one frame at a time,
+typically at 10 seconds per frame, though speeds can vary.  ffmpeg(1) would
+be a fine choice for a program to do this: it is portable, handles all kinds of
+video files, lots of outputs, and knows about frame rates.
+
+Unfortunately, it doesn't have an option to output frames to the background
+screen.  This probably isn't a hard modification, and would be welcome.  I suspect
+it would take less time to install a driver than I have spent on alternatives.
+
+Another way to use ffmpeg is to simply split the entire video into a directory,
+and let the display shell script crawl through this, displaying and deleting
+images.  There is a bit of a startup problem, and it uses lots of disk space.
+It also would tend to wear out an SSD drive. I have tested a version of this, but
+it is not in the present release.  Perhaps it should be.
+
+What we need is a program that will slowly read through a video, emitting a file
+every 10 seconds, and have something else display and delete that file.  This
+can all be done on a ramdisk, removing the SSD issue.  This seems like a pretty
+simple program: what existing tools can we use?  I have tried two, and
+both have their problems.
+
+1) Opencv.
+
+The basic OpenCV version simply opens a video file, reads a frame, and writes
+the jpeg somewhere.  It writes the file name to standard output, and sleeps
+for (say) 10 seconds.  Easy, right?
+
+It is easy, if you have the right version of OpenCV installed, with the right
+codecs.  This turns out to be quite hard, and I am trying to write a program
+portable to Linux, FreeBSD, Darwin, and (if someone else wants to do it) Windows.
+
+There is still a lot of OpenCV version 2 out there, and I had a version of this
+program running on it five years ago.  Version 2 appears to be deprecated, and
+why shouldn't we use the latest, version 3?  Well, version 3 no longer really
+supports C, so the little program needs to be rewritten in C++.  I am not a 
+fan, but would certainly welcome a drop-in replacement.
+
+I am not convinced that it will Just Work.  Even when the program compiles and
+loads without complaint, it tends to return a NULL when the video file is opened.
+That's the whole error message, and the OpenCV sages do not seem to have bothered
+giving us further information.  I suspect I am missing a codec, but that's
+another can of worms for each of these three target systems.
+
+2) libav
+
+I have actually gotten this to work on some of the target machines.  The program
+is much more complicated, and the usual stackoverflow/code stealing tricks are
+gummed up by poor documentation, and lots of old, deprecated stuff.  My version
+here is actually probably a good starting point for people who were in my
+situation.
+
+There are still codec problems.
+
+Other approaches.
+
+There is a python version of OpenCV, and I wonder if that has better support.
+Certainly, the program should be easy, and maybe it would Just Work.
+
+This has all been much harder than it should be.  There are various sources of
+these packages.  On FreeBSD, there is pkg(8), building it from the ports collection,
+and fetching the source and building it.  In the good old days this would
+involve
+	make
+	make install
+and you are ready.  We have now been infested with the likes of cmake.
+
+For this distribution, it would be nice to make it easy for an average non-system
+administrator to load and go.  One way to make this easy for them:  I go through
+the pain here at the farm, and generate and distribute static binaries for
+each target system.  But no, even if some distributors take care to get the
+static builds right, the libraries they depend on (all those codecs, for example)
+do not, and mysterious errors pop up from deep within elaborate build proceedures.
+
+So I try to install or build in each target system with the minimum of fuss.
+I am not there yet.
+
+
+Bill Cheswick
+ches@cheswick.com
+June 2018
+Flemington, NJ, USA
 ===============
 # we use opencv to split images off of movie files:
 sudo apt-get install cmake
@@ -81,23 +221,3 @@ sudo apt-get install libav-tools
 # #apt-get install -y libavformat-dev 
 # #apt-get install -y libsdl2-dev 
 # #apt-get install -y libavcodec-dev 
-
-exit
-
-
-git clone https://github.com/wcheswick/slowmovies.git
-cd slowmovies/
-./sminstall	# note leading period
-
-RPi:
-
-For boot options, change to boot to text console, auto login as pi
-by editing /etc/systemd/system/autologin@.service
-adding ExecStart just after [Service]:
-
-
-[Service]
-# the VT is cleared by TTYVTDisallocate
-ExecStart=-/sbin/agetty --autologin pi  --noclear %I $TERM
-Type=idle
-
