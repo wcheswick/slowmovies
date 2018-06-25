@@ -171,6 +171,7 @@ do
 	esac
 
 	smsplit -s $spf -f $first -c $count "$movie"/video.mp4 $CACHE |
+	awk '{print $1}' |
 	while read frame
 	do
 		if [ ! -s $WRKDIR/pid ]

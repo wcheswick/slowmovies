@@ -24,13 +24,20 @@ av_io.o cv_io.o split.o:	vid_io.h
 clean::
 	rm -f *.o cv_split av_split
 
-sh_install::	${BIN}/sh_split
+ss_install::	${BIN}/ss_split		# clever ffmpeg stop/cont version
+
+sh_install::	${BIN}/sh_split		# stupid shell version
 
 av_install::	${BIN}/av_split
 
 cv_install::	${BIN}/cv_split
 
 install::	${BIN}/cv_split ${BIN}/av_split ${BIN}/sh_split
+
+${BIN}/ss_split:	sssplit.sh
+	cp sssplit.sh $@
+	rm -f ${BIN}/smsplit
+	ln ${BIN}/ss_split ${BIN}/smsplit
 
 ${BIN}/sh_split:	smsplit.sh
 	cp smsplit.sh $@
