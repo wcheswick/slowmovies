@@ -24,11 +24,18 @@ av_io.o cv_io.o split.o:	vid_io.h
 clean::
 	rm -f *.o cv_split av_split
 
+sh_install::	${BIN}/sh_split
+
 av_install::	${BIN}/av_split
 
 cv_install::	${BIN}/cv_split
 
-install::	${BIN}/cv_split ${BIN}/av_split
+install::	${BIN}/cv_split ${BIN}/av_split ${BIN}/sh_split
+
+${BIN}/sh_split:	smsplit.sh
+	cp smsplit.sh $@
+	rm -f ${BIN}/smsplit
+	ln ${BIN}/sh_split ${BIN}/smsplit
 
 ${BIN}/cv_split:	cv_split
 	cp cv_split $@

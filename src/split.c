@@ -54,7 +54,7 @@ sleep_until_spf_time(int spf) {
 
 static int
 usage(void) {
-	fprintf(stderr, "usage: split [-c frame-count] [-f first-frame] [-s seconds-per-frame] [-S] [-n] video-file output_directory\n");
+	fprintf(stderr, "usage: smsplit [-c frame-count] [-f first-frame] [-s seconds-per-frame] [-S] video-file output_directory\n");
 	return 1;
 }
 
@@ -78,9 +78,6 @@ main (int argc, char **argv) {
 		break;
 	case 'l':	
 		last_frame = strtoul(ARGF(), (char **)NULL, 10); // default = 0 (all)
-		break;
-	case 'n':		// suppress non-stats output
-		nflag++;	
 		break;
 	case 's':		// seconds per frame, default is 10
 		spf = atoi(ARGF());	

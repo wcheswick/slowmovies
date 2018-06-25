@@ -38,7 +38,7 @@ Linux)
 	done
 
 #	splitter=av
-	splitter=cv
+#	splitter=cv
 	;;
 FreeBSD)
 	splitter=cv
@@ -49,6 +49,8 @@ Darwin)
 *)
 	exit 16
 esac
+
+splitter=sh	# the only one that works at the moment
 
 cd src
 make ${splitter}_install
