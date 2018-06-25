@@ -50,7 +50,7 @@ Darwin)
 	exit 16
 esac
 
-splitter=sh	# the only one that works at the moment
+splitter=ss	# the New Race
 
 cd src
 make ${splitter}_install
