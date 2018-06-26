@@ -3,27 +3,101 @@
 prog=smplay
 usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| -i i1,i2,i3,... }"
 #
-#	Play a slow movie on the current machine.  There are a few styles:
+#	Play a slow movie on the current machine.
+#
+#	m1 m2 ... are movie names, directories in the slow_movies catalog
+#	directory.  Alternatively, a list of numbers from the -l option
+#	may be used.
+#
+#	There are a few styles for presentation envisioned, though only
+#	one is implemented at the moment:
 #
 #	desktop	desktop backround (x root, or equivalent)
-#	full	full screen
-#
-#	We pick the best we can.
+#	full	full screen window	(not available)
 #
 #	-a	play all slowmovies
 #	-n	play only new or revised movies
-#	-l	list available slowmovies, and exit
+#	-l	list available slowmovies, with their index entries, and exit
 #	-r	play desired movies in random order
-#	-k	kill any current players on this machine
+#	-k	kill any current smplayer on this machine
 
 export PATH=$PATH:$HOME/bin
 
 . smdefs	|| exit 99
 
+case `uname` in
+Linux)
+	smstyle=desktop
+	;;
+Darwin)
+	smstyle=appledesktop
+	;;
+FreeBSD)
+	smstyle=desktop
+	;;
+*)		# just guessing here
+	smstyle=desktop
+esac
+
+if which system_profiler >/dev/null
+then	# macos
+	screen=`system_profiler SPDisplaysDataType |
+		grep Resolution |
+		sed 1q`	# main screen only, for now
+	W=`echo $screen | cut -f2 -d" "`
+	H=`echo $screen | cut -f4 -d" "`
+elif which xrdb >/dev/null
+then
+	screen=`xrdb -symbols -screen |
+		egrep 'DWIDTH=|DHEIGHT=' |
+		tr '\n' ' ' |
+		sed 's/-[^=]*=//g'`
+	W=`echo $screen | cut -f1 -d" "`
+	H=`echo $screen | cut -f2 -d" "`
+fi
+
+if [ -z "$W" -o -z "$H" ]
+then
+	log "$prog: screen information not available, aborting"
+	exit 20
+fi
+
+show_frame() { 
+	frame="$1"
+	case "$smstyle" in
+	desktop)
+		display -resize ${W}x${H} -backdrop -window root "$frame"
+		;;
+	appledesktop)
+osascript <<!EOF
+tell application "System Events"
+	tell (every desktop)
+		set picture rotation to 0
+		set picture to POSIX file "$frame"
+	end tell
+end tell
+!EOF
+		;;
+	full)
+		#  not yet 
+		;;
+	esac
+}
+
+if [ ! -n "`which smsplit`" ]
+then
+	echo "$prog:	smsplit missing, needs smsysinstall" 1>&2
+	exit 1
+fi
+
+if [ ! -n "`which ffmpeg`" ]
+then
+	echo "$prog:	ffmpeg missing, needs smsysinstall" 1>&2
+	exit 1
+fi
+
+
 mkdir -p ${WRKDIR}
-
-. smsetup	|| exit 98
-
 
 cd $LOCAL_MOVIE_CATALOG
 	grep 'updated=[0-9]' */info |
@@ -98,37 +172,36 @@ done
 sort -u |
 comm -23 $WRKDIR/toplay - >$WRKDIR/playlist
 
-# set up small ramfs if we can.  We are going to peel off individual frames
-# from the incoming video and store them there.  Since they are very ephemeral,
+# set up small ramfs.  We are going to peel off individual frames
+# from the incoming video and store them there.  Since the frames are ephemeral,
 # ramfs is fast, small, and doesn't wear out an SSD.
 
-CACHE=/tmp/$prog.cache
-
+RAM_CACHE=/tmp/$prog.cache
 RAMFS_SIZE_MB=60
 
 case `uname` in
 FreeBSD)
-	if [ -d $CACHE ]
+	if [ -d $RAM_CACHE ]
 	then
-		sudo umount $CACHE 2>/dev/null
+		sudo umount $RAM_CACHE 2>/dev/null
 	fi
-	if [ ! -d $CACHE ]
+	if [ ! -d $RAM_CACHE ]
 	then
-		mkdir -m 0777 -p $CACHE
-		sudo mdmfs -m 0 -p 0777 -s ${RAMFS_SIZE_MB}m md1 $CACHE
+		mkdir -m 0777 -p $RAM_CACHE
+		sudo mdmfs -m 0 -p 0777 -s ${RAMFS_SIZE_MB}m md1 $RAM_CACHE
 	fi
-	rm -f $CACHE/*
+	rm -f $RAM_CACHE/*
 	;;
 Linux)
-	mkdir -m 0777 -p $CACHE
-	sudo mount -t tmpfs -o size=${RAMFS_SIZE_MB}m tmpfs $CACHE
-	rm -f $CACHE/*
+	mkdir -m 0777 -p $RAM_CACHE
+	sudo mount -t tmpfs -o size=${RAMFS_SIZE_MB}m tmpfs $RAM_CACHE
+	rm -f $RAM_CACHE/*
 	;;
 Darwin)
 	ramblocks=`expr ${RAMFS_SIZE_MB} * 2048`
 	diskutil erasevolume HFS+ '{$prog}Cache' \
 		`hdiutil attach -nomount ram://$ramblocks`
-	ln -s /Volumes/${prog}Cache $CACHE
+	ln -s /Volumes/${prog}Cache $RAM_CACHE
 	;;
 *)
 esac
@@ -145,7 +218,7 @@ then
 else
 	cat $WRKDIR/playlist
 fi | 
-while read movie
+while read movie	# run through our playlist
 do
 	log "$prog: $movie"
 	if [ ! -d "$movie" ]
@@ -170,8 +243,8 @@ do
 	all)	count=0;;
 	esac
 
-	smsplit -s $spf -f $first -c $count "$movie"/video.mp4 $CACHE |
-	awk '{print $1}' |
+	smsplit -s $spf -f $first -c $count "$movie"/video.mp4 $RAM_CACHE |
+	awk '{print $1}' | 
 	while read frame
 	do
 		if [ ! -s $WRKDIR/pid ]

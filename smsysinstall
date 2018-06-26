@@ -37,20 +37,18 @@ Linux)
 		fi
 	done
 
-#	splitter=av
-#	splitter=cv
+	splitter=ss
 	;;
 FreeBSD)
-	splitter=cv
+	sudo pkg install -y ffmpeg
+	splitter=ss
 	;;
 Darwin)
-	splitter=av
+	splitter=ss
 	exit 15;;
 *)
 	exit 16
 esac
-
-splitter=ss	# the New Race
 
 cd src
 make ${splitter}_install

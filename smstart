@@ -5,7 +5,7 @@ usage="$prog [smplay-params]"
 #
 #	Default: play everything we haven't seen before, randomly
 
-. smsetup	|| exit 99
+. smdefs	|| exit 99
 
 if [ -s $LOCAL_MOVIE_LIB/banner.png ]	# show sm logo page
 then
