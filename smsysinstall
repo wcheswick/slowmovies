@@ -49,6 +49,3 @@ Darwin)
 *)
 	exit 16
 esac
-
-cd src
-make ${splitter}_install

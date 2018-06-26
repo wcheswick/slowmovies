@@ -58,6 +58,8 @@ fi
 
 . ./smdefs	|| exit 99
 
+(cd src; make ss_install)
+
 if [ ! -s $LOG ]
 then
 	sudo cp /dev/null $LOG

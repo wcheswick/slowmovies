@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 prog=smplay
-usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| -i i1,i2,i3,... }"
+usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| {-i i1,i2,i3,...} }"
 #
 #	Play a slow movie on the current machine.
 #
@@ -132,6 +132,11 @@ do
 	-a)	sort -u $WRKDIR/available_movies >$WRKDIR/toplay
 		shift;;
 	-i)	shift
+		if [ $# -eq 0 ]
+		then
+			echo "$usage" 1>&2
+			exit 1
+		fi
 		indexlist=`echo "$1" | tr ',' ' '`
 		shift
 		for i in $indexlist
@@ -181,16 +186,21 @@ RAMFS_SIZE_MB=60
 
 case `uname` in
 FreeBSD)
-	if [ -d $RAM_CACHE ]
-	then
-		sudo umount $RAM_CACHE 2>/dev/null
-	fi
 	if [ ! -d $RAM_CACHE ]
 	then
 		mkdir -m 0777 -p $RAM_CACHE
-		sudo mdmfs -m 0 -p 0777 -s ${RAMFS_SIZE_MB}m md1 $RAM_CACHE
 	fi
-	rm -f $RAM_CACHE/*
+
+	if [ ! -d $RAM_CACHE/.snap ]	# need to create
+	then
+		log "$prog:	creating ram disk"
+		sudo mdmfs -m 0 -p 0777 -s ${RAMFS_SIZE_MB}m md1 $RAM_CACHE || {
+			log "$prog:	could not make and mount $RAM_CACHE ($?)"
+			exit 4
+		}
+	else
+		log "$prog:	ram disk already mounted: $RAM_CACHE"
+	fi
 	;;
 Linux)
 	mkdir -m 0777 -p $RAM_CACHE
@@ -205,7 +215,6 @@ Darwin)
 	;;
 *)
 esac
-
 
 if [ -n "$randomize" ]
 then

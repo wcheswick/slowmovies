@@ -61,18 +61,34 @@ fi
 
 if [ ! -d $ramfs_directory ]
 then
-	log "$prog:	ramfs_directory missing"
+	log "$prog:	$ramfs_directory missing"
 	exit 4
 fi
 
+(cd $ramfs_directory; ls | xargs rm -f)
+
 ram_capacity () {
-	df -h $ramfs_directory | tail -1 |
+	_rc=`df -h $ramfs_directory | tail -1 |
 			awk '{print $5}' |
-			tr -d '%'
+			tr -d '%'`
+	case "$_rc" in
+	"")	echo "NA";;
+	*)	echo ${_rc}
+	esac
+}
+
+frames_in_queue() {
+	(cd "$ramfs_directory"; ls | wc -l | tr -d ' ')
 }
 
 ffmpeg_running() {
 	pgrep -F $FFMPEG_PID_FILE >/dev/null 2>/dev/null
+}
+
+# This is slow, but still useful.
+
+now() {
+	python -c 'import datetime; print datetime.datetime.now().strftime("%s.%f")'
 }
 
 movie_name=`echo "$video_path" | awk -v FS=/ '{print $(NF-1)}'`
@@ -80,29 +96,26 @@ FFMPEG_PID_FILE=$ramfs_directory/.pid
 FRAME_PATH_FMT="$ramfs_directory/frame%09d.jpeg"
 
 RAM_STOP_PCT=40	# small enough that we stop ffmpeg before the ramdisk fills up
-RAM_CONT_PCT=8	# large enough to get more frames before the consumer runs out
+RAM_CONT_PCT=10	# large enough to get more frames before the consumer runs out
 
 # launch ffmpeg, and stop it immediately.
 
+log "$prog:	ffmpeg start	`ram_capacity`%	`frames_in_queue`" 1>&2
+
 ffmpeg -hide_banner -v 8 -i "$video_path" -qscale:v 2 $FRAME_PATH_FMT 1>&2 &
-log "$prog: ffmpeg started"
 
 ffmpeg_pid=$!
 echo $ffmpeg_pid >$FFMPEG_PID_FILE
 
 kill -STOP $ffmpeg_pid
 
-ram_capacity=`df -h $ramfs_directory | tail -1 |
-	awk '{print $5}' | tr -d '%'`
-log "$prog: ffmpeg stopped	$ram_capacity" 1>&2
-
-ffmpeg_status=stopped
+log "$prog:	ffmpeg pause	`ram_capacity`%	`frames_in_queue`" 1>&2
 
 frame_number=1
 while true
 do
 	framefn=`printf "$FRAME_PATH_FMT" $frame_number`
-	if [ -s $framefn ]
+	if [ ! -s $framefn ]
 	then
 		# The next frame is not in the ram cache
 		# If there is data in the cache, wait until
@@ -110,22 +123,22 @@ do
 		# ffmpeg to get more frames.
 
 		rc=`ram_capacity`
-		log "$prog:	Need more frames, at $rc%"
-
 		while [ $rc -gt $RAM_CONT_PCT ]
 		do
 			if ! ffmpeg_running
 			then
-				log "$prog: ffmpeg finished, out of frames, done"
+				log "$prog: ffmpeg finished, (`frames_in_queue`) out of frames, done"
 				exit 0
 			fi
 #			log "$prog:  waiting for frame consumption" 1>&2
-			sleep 5
+			sleep 2
 			rc=`ram_capacity`
 		done
 
-		log "$prog:	Restarting ffmpeg, at $rc%"
+		start_frames=`frames_in_queue`
+		log "$prog:	ffmpeg restart	${rc}%	$start_frames"
 
+		start=`now`
 		if ! kill -CONT $ffmpeg_pid 2>/dev/null
 		then
 			log "$prog:	Cannot resume ffmpeg $ffmpeg_pid"
@@ -140,21 +153,44 @@ do
 
 		if ! kill -STOP $ffmpeg_pid 2>/dev/null
 		then
-			log "$prog:	Cannot resume ffmpeg $ffmpeg_pid"
-		else
-			log "$prog:	re-paused ffmpeg, at $rc%"
+			log "$prog:	Cannot stop ffmpeg $ffmpeg_pid"
 		fi
+		stop=`now`
+		elapsed_ms=`echo "($stop - $start)*1000" | bc`
+		finish_frames=`frames_in_queue`
+		new_frames=`expr $finish_frames - $start_frames`
+		case $new_frames in
+		0)	mspf="";;
+		*)	mspf=`echo "$elapsed_ms / $new_frames" | bc`
+		esac
 
+		log "$prog:	ffmpeg pause	$rc%	$new_frames	${mspf} ms/f"
 	fi
 
 	if [ ! -s $framefn ]
 	then
 		if ! ffmpeg_running
 		then
+			log "$prog:	frame not found, ffmpeg gone	$rc%	`frames_in_queue`"
 			exit 0
 		else
-			log "$prog:	stuck without further frames for some reason"
-			exit 1
+			log "$prog:	stuck without frame $framefn for some reason"
+			# if he deleted the file before we told him about it,
+			# for example
+			case `frames_in_queue` in
+			0)
+				(	pwd
+					ls -l $ramfs_directory
+				) 1>&2;;
+
+			*)	next_frame=`(cd $ramfs_directory; ls | sed 1q)`
+				log "$prog:	skipping to frame $next_frame"
+				frame_number=`echo $next_frame | # remove non-digits
+					sed 's/[^0-9]*//g' |	# .. and leading zeros
+					sed 's/^0*//'`
+				framefn=`printf "$FRAME_PATH_FMT" $frame_number`
+			esac
+			continue
 		fi
 	fi
 	echo "$framefn"
