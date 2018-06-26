@@ -102,6 +102,8 @@ RAM_CONT_PCT=10	# large enough to get more frames before the consumer runs out
 
 log "$prog:	ffmpeg start	`ram_capacity`%	`frames_in_queue`" 1>&2
 
+# NB: our frames start at zero.  ffmpeg starts at file name ...0001.jpeg
+
 ffmpeg -hide_banner -v 8 -i "$video_path" -qscale:v 2 $FRAME_PATH_FMT 1>&2 &
 
 ffmpeg_pid=$!
@@ -190,7 +192,6 @@ do
 					sed 's/^0*//'`
 				framefn=`printf "$FRAME_PATH_FMT" $frame_number`
 			esac
-			continue
 		fi
 	fi
 	echo "$framefn"
@@ -209,12 +210,10 @@ all)	cat -;;
 *)	sed -n "1,${frame_count}"p
 	log "$prog: 	limited to ${frame_count} frames"
 esac |
-while read framefn
+while read frame
 do
-	echo "$framefn"
+	echo "$frame"
 	sleep $spf
 done
-
-kill 0
 
 log "$prog	exiting"

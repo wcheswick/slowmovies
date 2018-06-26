@@ -65,8 +65,9 @@ fi
 show_frame() { 
 	frame="$1"
 	case "$smstyle" in
-	desktop)
+	desktop)	 #"display" is from imagemagick
 		display -resize ${W}x${H} -backdrop -window root "$frame"
+		true	# getting error return codes, but seems to be working.
 		;;
 	appledesktop)
 osascript <<!EOF
@@ -184,18 +185,18 @@ comm -23 $WRKDIR/toplay - >$WRKDIR/playlist
 RAM_CACHE=/tmp/$prog.cache
 RAMFS_SIZE_MB=60
 
+if [ ! -d $RAM_CACHE ]
+then
+	mkdir -m 0777 -p $RAM_CACHE
+fi
+
 case `uname` in
 FreeBSD)
-	if [ ! -d $RAM_CACHE ]
-	then
-		mkdir -m 0777 -p $RAM_CACHE
-	fi
-
 	if [ ! -d $RAM_CACHE/.snap ]	# need to create
 	then
 		log "$prog:	creating ram disk"
 		sudo mdmfs -m 0 -p 0777 -s ${RAMFS_SIZE_MB}m md1 $RAM_CACHE || {
-			log "$prog:	could not make and mount $RAM_CACHE ($?)"
+			log "$prog:	could not mount $RAM_CACHE ($?)"
 			exit 4
 		}
 	else
@@ -203,9 +204,12 @@ FreeBSD)
 	fi
 	;;
 Linux)
-	mkdir -m 0777 -p $RAM_CACHE
-	sudo mount -t tmpfs -o size=${RAMFS_SIZE_MB}m tmpfs $RAM_CACHE
-	rm -f $RAM_CACHE/*
+	ls -la $RAM_CACHE 1>&2
+	sudo mount -t tmpfs -o size=${RAMFS_SIZE_MB}m tmpfs $RAM_CACHE || {
+		log "$prog:	could not mount $RAM_CACHE ($?)"
+		exit 4
+	}
+	ls -la $RAM_CACHE 1>&2
 	;;
 Darwin)
 	ramblocks=`expr ${RAMFS_SIZE_MB} * 2048`
@@ -215,6 +219,8 @@ Darwin)
 	;;
 *)
 esac
+
+# (RAM_CACHE directory is cleared by the split program)
 
 if [ -n "$randomize" ]
 then
@@ -253,7 +259,6 @@ do
 	esac
 
 	smsplit -s $spf -f $first -c $count "$movie"/video.mp4 $RAM_CACHE |
-	awk '{print $1}' | 
 	while read frame
 	do
 		if [ ! -s $WRKDIR/pid ]
@@ -266,11 +271,14 @@ do
 			exit 9
 		fi
 
-		if [ -s $frame ]
+		if [ -s "$frame" ]
 		then
-			echo "---- show_frame" "$frame"
-			show_frame "$frame"	|| exit 99
-			cp $frame /tmp/lastframe.pnm
+#			log "---- show_frame" "$frame"
+			show_frame "$frame"	|| {
+				log "$prog:	show_frame error ($?)"
+				exit 99
+			}
+			cp $frame /tmp/lastframe.jpeg
 			rm -f "$frame"
 		else
 			log "$prog:	frame missing: $frame"
