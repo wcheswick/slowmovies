@@ -26,6 +26,55 @@ export PATH=$PATH:$HOME/bin
 
 . smdefs	|| exit 99
 
+
+randomize=
+onlynew=
+quiet=
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-a)	sort -u $WRKDIR/available_movies >$WRKDIR/toplay
+		shift;;
+	-i)	shift
+		if [ $# -eq 0 ]
+		then
+			echo "$usage" 1>&2
+			exit 1
+		fi
+		indexlist=`echo "$1" | tr ',' ' '`
+		shift
+		for i in $indexlist
+		do
+			movie_name=`sed -n ${i}p <$WRKDIR/available_movies`
+			if [ -n "$movie_name" ]
+			then
+				echo "$movie_name"
+			fi
+		done | sort -u >$WRKDIR/toplay
+		break;;
+	-k)
+		rm -f $WRKDIR/pid
+		exit 0;;
+	-l)	nl <$WRKDIR/available_movies
+		exit 0
+		;;
+	-n)	onlynew=true
+		shift;;
+	-q)	quiet=true
+		shift;;
+	-r)	randomize=true
+		shift;;
+	-*)	echo "$usage" 1>&2
+		exit 1;;
+	*)	for i in "$@"
+		do
+			echo "$i"
+		done | sort -u >$WRKDIR/toplay
+		break
+	esac
+done
+
 case `uname` in
 Linux)
 	smstyle=desktop
@@ -125,53 +174,6 @@ esac
 our_pid=$$
 echo $our_pid >$WRKDIR/pid
 
-randomize=
-onlynew=
-quiet=
-
-while [ $# -gt 0 ]
-do
-	case "$1" in
-	-a)	sort -u $WRKDIR/available_movies >$WRKDIR/toplay
-		shift;;
-	-i)	shift
-		if [ $# -eq 0 ]
-		then
-			echo "$usage" 1>&2
-			exit 1
-		fi
-		indexlist=`echo "$1" | tr ',' ' '`
-		shift
-		for i in $indexlist
-		do
-			movie_name=`sed -n ${i}p <$WRKDIR/available_movies`
-			if [ -n "$movie_name" ]
-			then
-				echo "$movie_name"
-			fi
-		done | sort -u >$WRKDIR/toplay
-		break;;
-	-k)
-		rm -f $WRKDIR/pid
-		exit 0;;
-	-l)	nl <$WRKDIR/available_movies
-		exit 0
-		;;
-	-n)	onlynew=true
-		shift;;
-	-q)	quiet=true
-		shift;;
-	-r)	randomize=true
-		shift;;
-	-*)	echo "$usage" 1>&2
-		exit 1;;
-	*)	for i in "$@"
-		do
-			echo "$i"
-		done | sort -u >$WRKDIR/toplay
-		break
-	esac
-done
 
 (	cat $LOCAL_MOVIE_LIB/dontwatch 2>/dev/null
 	if [ -n "$onlynew" ]
