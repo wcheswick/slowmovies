@@ -43,11 +43,11 @@ smadd -q 3 "Beach test" \
 
 smadd -q 3 "Crowded beach 1" \
 	"Crowded beach 1" \
-		/r/media/videos/ACK/Surfside/Crowded beach 1/crowd1.MP4
+		/r/media/videos/ACK/Surfside/"Crowded beach 1"/crowd1.MP4
 
 smadd -q 3 "Crowded beach 2" \
 	"Crowded beach 2" \
-		/r/media/videos/ACK/Surfside/Crowded beach 2/crowd2.MP4
+		/r/media/videos/ACK/Surfside/"Crowded beach 2"/crowd2.MP4
 
 smadd -q 3 "Beach board" \
 	"Beach with kid" \
