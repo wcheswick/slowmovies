@@ -88,6 +88,43 @@ do
 	fi
 done
 
+#define YES	0
+#define NO	1
+
+needs_update() {
+	if [ -z "$updated" ]
+	then
+		echo "unknown"
+		return
+	elif [ "$updated" -lt "$date" ]
+	then
+		echo "out of date"
+		return
+	elif [ ! -s "catalog/$name/video.mp4" ]
+	then
+		echo "video file missing"
+		return
+	fi
+	echo ""
+}
+
+needs_audio_update() {
+	if [ -z "$audio_updated" ]
+	then
+		echo ""		# no audio supplied
+		return
+	elif [ "$audio_updated" -lt "$date" ]
+	then
+		echo "audio out of date"
+		return
+	elif [ ! -s "catalog/$name/audio.mp3" ]
+	then
+		echo "audio file missing"
+		return
+	fi
+	echo ""
+}
+
 cat $WRKDIR/interesting_index |
 while read line
 do
@@ -106,41 +143,59 @@ do
 		}
 		. ./"catalog/$name/info"
 
-		if [ -n "$updated" ]
+		update_need=`needs_update`
+		audio_update_need=`needs_audio_update`
+
+		if [ -z "$update_need" -a -z "$audio_update_need" ]
 		then
-			if [ "$updated" -ge "$date" ]
-			then
-				echo "$prog: $name	up to date" 1>&2
-				continue
-			fi
+			echo "$prog: $name	up to date" 1>&2
+			continue
 		fi
+	else
+		update_need="movie unknown"
 	fi
 
 	if [ -n "$nochange" ]
 	then
-		echo "$prog: $name	needs updating" 1>&2
+		need="$update_need"
+		if [ -z "$need" ]
+		then
+			need="$audio_update_need"
+		fi
+		
+		echo "$prog: $name	needs update ($need)" 1>&2
 		continue
 	fi
 
-	echo "$prog: $name	fetching..." 1>&2
-	mkdir -p "catalog/$name"	|| exit 3
-	rm -rf catalog/"$name"/*
-
-	curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/info || {
-		echo "$prog:	info missing, skipping" 1>&2
-		continue
-	}
-
-	curl -s $MOVIE_CATALOG_URL/$urlname/banner.png \
-	    -o catalog/"$name"/banner.png || {
-		echo "$prog:	banner missing" 1>&2
-	}
-
-	curl -s $MOVIE_CATALOG_URL/$urlname/video.mp4 \
-	    -o catalog/"$name"/video.mp4 || {
-		echo "$prog:	error, skipping" 1>&2
-		continue
-	}
+	if [ -n "$update_need" ]
+	then
+		echo "$prog: $name	fetching..." 1>&2
+		mkdir -p "catalog/$name"	|| exit 3
+		rm -rf catalog/"$name"/*
+	
+		curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/info || {
+			echo "$prog:	info missing, skipping" 1>&2
+			continue
+		}
+	
+		curl -s $MOVIE_CATALOG_URL/$urlname/banner.png \
+		    -o catalog/"$name"/banner.png || {
+			echo "$prog:	banner missing" 1>&2
+		}
+	
+		curl -s $MOVIE_CATALOG_URL/$urlname/video.mp4 \
+		    -o catalog/"$name"/video.mp4 || {
+			echo "$prog:	error, skipping" 1>&2
+			continue
+		}
+	elif [ -n "$audio_update_need" ]
+	then
+		echo "$prog: $name	updating audio" 1>&2	
+		curl -s $MOVIE_CATALOG_URL/$urlname/audio.mp3 \
+		   -o catalog/"$name"/audio.mp3 || {
+			echo "$prog:	audio update failed" 1>&2
+		}
+	fi
 done
 
 du -sh $LOCAL_MOVIE_LIB

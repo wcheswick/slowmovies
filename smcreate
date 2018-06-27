@@ -37,6 +37,25 @@ SLOWSTAGE=$HOME/tmp/slowstage
 
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 
+smadd -q 3 "Beach test" \
+	"Beach test" \
+		/r/media/videos/ACK/Surfside/Beach-test/beach-test.MP4
+
+smadd -q 3 "Crowded beach 1" \
+	"Crowded beach 1" \
+		/r/media/videos/ACK/Surfside/Crowded beach 1/crowd1.MP4
+
+smadd -q 3 "Crowded beach 2" \
+	"Crowded beach 2" \
+		/r/media/videos/ACK/Surfside/Crowded beach 2/crowd2.MP4
+
+smadd -q 3 "Beach board" \
+	"Beach with kid" \
+		/r/media/videos/ACK/Surfside/Beachboarder/boarder.MP4
+
+smadd -q 3 "Hurricane Katia" \
+	"Waves crashing on the shore" \
+		/r/media/videos/ACK/Surfside/katia-spume/GO0[01]2241.MP4
 
 smadd -q 4 "Pool rain" \
         "Spring rain in a swimming pool" \
@@ -47,7 +66,7 @@ smadd -q 3 "Leaving the Adirondacks" \
 	"An evening's departure from Sabbatis to points south." \
 		$TIME_LAPSE/adirondacks.mov
 
-smadd -s 3 -q 2 "Surfside sunset" \
+smadd -s 1 -q 2 "Surfside sunset" \
 	"Surfside sunset" \
 		/r/media/videos/ACK/Surfside/sunset-raw/*.MP4
 
@@ -58,7 +77,7 @@ smadd -f 41 -q 3 "Hana Road westbound" \
 
 ## surfside beach ##
 
-smadd -q 2 "Sand castle 1" \
+smadd -q 3 "Sand castle 1" \
 	"Ches sandcastle in a tidal pool" \
 		/r/media/videos/ACK/Surfside/castle-1/*.MP4
 
@@ -158,7 +177,7 @@ smadd -q 2 "West over the Sierras" \
 #	"A drive to the mainland at Mach 1." \
 #		$TIME_LAPSE/key-west-east.mov
 
-smadd -q 3 "From Key West to the Mainland at Mach 20" \
+smadd -q 2 "From Key West to the Mainland at Mach 20" \
 	"" \
 		$TIME_LAPSE/keys-eastbound.mov
 

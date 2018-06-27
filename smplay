@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 prog=smplay
-usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| {-i i1,i2,i3,...} }"
+usage="$prog [-l] [-r] [-k] [-1] {[-a] | m1 m2 ...| {-i i1,i2,i3,...} }"
 #
 #	Play a slow movie on the current machine.
 #
@@ -16,6 +16,7 @@ usage="$prog [-l] [-r] [-k] {[-a] | m1 m2 ...| {-i i1,i2,i3,...} }"
 #	full	full screen window	(not available)
 #
 #	-a	play all slowmovies
+#	-q	quiet: don't play audio, if present
 #	-n	play only new or revised movies
 #	-l	list available slowmovies, with their index entries, and exit
 #	-r	play desired movies in random order
@@ -126,6 +127,7 @@ echo $our_pid >$WRKDIR/pid
 
 randomize=
 onlynew=
+quiet=
 
 while [ $# -gt 0 ]
 do
@@ -156,6 +158,8 @@ do
 		exit 0
 		;;
 	-n)	onlynew=true
+		shift;;
+	-q)	quiet=true
 		shift;;
 	-r)	randomize=true
 		shift;;
@@ -257,6 +261,16 @@ do
 	case "$count" in
 	all)	count=0;;
 	esac
+
+	audio_pid=
+	if [ -z "$quiet" -a -s "$movie"/audio.mp3 ]
+	then
+		while true
+		do
+			mpg123 -q "$movie"/audio.mp3
+		done &
+		audio_pid=$!
+	fi
 
 	smsplit -s $spf -f $first -c $count "$movie"/video.mp4 $RAM_CACHE |
 	while read frame

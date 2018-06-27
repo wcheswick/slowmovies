@@ -12,9 +12,6 @@ then
 	show_frame $LOCAL_MOVIE_LIB/banner.png
 fi
 
-#  user does this
-# nice smupdate -q 3 &	# make sure things are current, but do it in background
-
 case $# in
 0)	smplay -a -r -n;;
 *)	smplay "$@"

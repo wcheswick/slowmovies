@@ -7,6 +7,8 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] [-q quality] title 
 #	more video files found relative to the current directory, and
 #	concatentated together.
 #
+#	If that directory contains an audio.mp3 file, that is added also.
+#
 #	files, each of which may have additional information in a .data file.
 #	All are processed into the catalog directory, if forced or the catalog
 #	entry is missing or older.
@@ -48,6 +50,8 @@ title="$1";	shift
 subtitle="$1";	shift
 
 inputlist=""
+first_video_fn="$1"
+
 while [ $# -gt 0 ]
 do
 	inputlist="$inputlist -i $1"
@@ -62,7 +66,28 @@ then
 	smbanner "$title" "$subtitle"  banner.png
 fi
 
-# generate executable shell variables for relevant information
+video_dir=`dirname "$first_video_fn"`
+audio_file="$video_dir"/audio.mp3
+
+if [ ! -s "$audio_file" ]
+then
+	video_base=`echo "$first_video_fn" | sed 's/\.[a-z]*$//'`
+	audio_file="$video_base".mp3
+	if [ ! -s "$audio_file" ]
+	then
+		audio_file=""
+	fi
+fi
+
+if [ -n "$audio_file" ]
+then
+	if [ -n "$force" -o ! -s audio.mp3 -o "$audio_file" -nt audio.mp3 ]
+	then
+		echo "$prog:	$title	updating audio file" 1>&2
+		cp "$audio_file"  audio.mp3
+		audio_updated=`date +%s`
+	fi
+fi
 
 
 if [ -n "$force" -o ! -s info -o ! -s video.mp4  ]
@@ -87,7 +112,7 @@ then
 		}
 	updated=`date +%s`
 else
-	echo "$prog:	$title		updating ..." 1>&2
+	echo "$prog:	$title		updating info ..." 1>&2
 	. ./info
 	if [ ! -n "$updated" ]
 	then
@@ -103,12 +128,14 @@ then
 fi
 
 cat <<!EOF >info
-title='$title'
+title="$title"
 spf=$nspf
 first=$nfirst
 count=$ncount
 quality=$nquality
 updated=$updated
+audio_updated=$audio_updated
+subtitle="$subtitle"
 !EOF
 chmod +x info
 
