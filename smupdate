@@ -208,14 +208,12 @@ do
 	elif [ -n "$audio_update_need" ]
 	then
 		echo "$prog: $name	updating audio	$audio_update_need" 1>&2	
-set -x
 		(cd "catalog/$name"
 			wget -q -c  $MOVIE_CATALOG_URL/$urlname/audio.mp3  || {
 				echo "$prog:	audio update failed" 1>&2
 			}
 		)
 	fi
-exit 13
 done
 
 du -sh $LOCAL_MOVIE_LIB
