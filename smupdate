@@ -99,11 +99,18 @@ needs_update() {
 	elif [ "$updated" -lt "$date" ]
 	then
 		echo "out of date"
+		rm -f "catalog/$name/video.mp4" 
 		return
 	elif [ ! -s "catalog/$name/video.mp4" ]
 	then
 		echo "video file missing"
 		return
+	elif [ "$video_size" -gt `file_size "catalog/$name/video.mp4"` ]
+	then
+		echo "video file partly downloaded"
+	elif [ "$video_size" -ne `file_size "catalog/$name/video.mp4"` ]
+	then
+		echo "video file wrong length"
 	fi
 	echo ""
 }
@@ -116,10 +123,16 @@ needs_audio_update() {
 	elif [ "$audio_updated" -lt "$date" ]
 	then
 		echo "audio out of date"
+		rm -f "catalog/$name/audio.mp3" 
 		return
 	elif [ ! -s "catalog/$name/audio.mp3" ]
 	then
 		echo "audio file missing"
+		return
+	elif [ -n "$audio_size" -a \
+		"$audio_size" -ne `file_size "catalog/$name/audio.mp3"` ]
+	then
+		echo "audio file wrong size"
 		return
 	fi
 	echo ""
@@ -171,34 +184,38 @@ do
 	then
 		echo "$prog: $name	fetching..." 1>&2
 		mkdir -p "catalog/$name"	|| exit 3
-		rm -rf catalog/"$name"/*
+		(cd "catalog/$name"
+			rm -rf catalog/"$name"/*
 	
-		curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/.info || {
-			echo "$prog:	info missing, skipping" 1>&2
-			continue
-		}
+			wget -q $MOVIE_CATALOG_URL/$urlname/info || {
+				echo "$prog:	info missing, skipping update" 1>&2
+				continue
+			}
 	
-		curl -s $MOVIE_CATALOG_URL/$urlname/banner.png \
-		    -o catalog/"$name"/banner.png || {
-			echo "$prog:	banner missing" 1>&2
-		}
+			wget -q $MOVIE_CATALOG_URL/$urlname/banner.png  || {
+				echo "$prog:	banner missing" 1>&2
+			}
 	
-		curl -s $MOVIE_CATALOG_URL/$urlname/video.mp4 \
-		    -o catalog/"$name"/video.mp4 || {
-			echo "$prog:	error, skipping" 1>&2
-			continue
-		}
-		mv catalog/"$name"/.info catalog/"$name"/info || {
-			echo "$prog:	error, move failed" 1>&2
-		}
+			wget -q -c $MOVIE_CATALOG_URL/$urlname/video.mp4  || {
+				echo "$prog:	error, skipping" 1>&2
+				continue
+			}
+
+			mv .info info || {
+				echo "$prog:	error, move failed" 1>&2
+			}
+		)
 	elif [ -n "$audio_update_need" ]
 	then
-		echo "$prog: $name	updating audio" 1>&2	
-		curl -s $MOVIE_CATALOG_URL/$urlname/audio.mp3 \
-		   -o catalog/"$name"/audio.mp3 || {
-			echo "$prog:	audio update failed" 1>&2
-		}
+		echo "$prog: $name	updating audio	$audio_update_need" 1>&2	
+set -x
+		(cd "catalog/$name"
+			wget -q -c  $MOVIE_CATALOG_URL/$urlname/audio.mp3  || {
+				echo "$prog:	audio update failed" 1>&2
+			}
+		)
 	fi
+exit 13
 done
 
 du -sh $LOCAL_MOVIE_LIB

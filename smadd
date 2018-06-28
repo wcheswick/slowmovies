@@ -131,12 +131,12 @@ fi
 
 if [ -s audio.mp3 ]
 then
-	audio_size=`ls -l audio.mp3 | awk '{print $5}'`
+	audio_size=`file_size audio.mp3`
 else
 	audio_size=""
 fi
 
-video_size=`ls -l video.mp4 | awk '{print $5}'`
+video_size=`file_size video.mp4`
 
 cat <<!EOF >info
 title="$title"

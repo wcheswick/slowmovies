@@ -28,3 +28,7 @@ LOG=/var/log/slowmovies
 log() { 
 	echo "`date +\"%b %e %H:%M:%S\"`	$@" | tee -a $LOG 1>&2
 }
+
+file_size() {
+	echo `ls -l "$1" | awk '{print $5}'`
+}
