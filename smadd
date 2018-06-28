@@ -59,8 +59,6 @@ do
 	shift
 done >$WRKDIR/inputvideos
 
-echo $inputlist
-
 mkdir -p "$MASTER_CATALOG_DIR/$title"
 cd "$MASTER_CATALOG_DIR/$title"
 

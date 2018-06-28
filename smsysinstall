@@ -29,6 +29,11 @@ Linux)
 		sudo apt-get install -y imagemagick
 	fi
 
+	if [ ! -n "`which wget`" ]
+	then
+		sudo apt-get install -y wget
+	fi
+
 	if [ ! -n "`which mpg123`" ]
 	then
 		sudo apt-get install -y mpg123
@@ -47,6 +52,7 @@ Linux)
 FreeBSD)
 	sudo pkg install -y ffmpeg
 	sudo pkg install -y mpg123
+	sudo apt-get install -y wget
 
 	splitter=ss
 	;;
