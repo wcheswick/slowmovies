@@ -186,12 +186,7 @@ do
 		mkdir -p "catalog/$name"	|| exit 3
 		(cd "catalog/$name"
 			rm -rf catalog/"$name"/*
-	
-			wget -q $MOVIE_CATALOG_URL/$urlname/info || {
-				echo "$prog:	info missing, skipping update" 1>&2
-				continue
-			}
-	
+
 			wget -q $MOVIE_CATALOG_URL/$urlname/banner.png  || {
 				echo "$prog:	banner missing" 1>&2
 			}
@@ -200,9 +195,10 @@ do
 				echo "$prog:	error, skipping" 1>&2
 				continue
 			}
-
-			mv .info info || {
-				echo "$prog:	error, move failed" 1>&2
+	
+			wget -q $MOVIE_CATALOG_URL/$urlname/info || {
+				echo "$prog:	info missing, skipping update" 1>&2
+				continue
 			}
 		)
 	elif [ -n "$audio_update_need" ]
