@@ -37,11 +37,9 @@ SLOWSTAGE=$HOME/tmp/slowstage
 
 TIME_LAPSE=$HOME/tmp/slowstage/timelapse
 
-sh ./smadd -q 3 "Crowded beach 1" \
+smadd -q 3 "Crowded beach 1" \
 	"Crowded beach 1" \
 		'/r/media/videos/ACK/Surfside/Crowded beach 1/crowd1.MP4'
-
-exit 13
 
 smadd -q 3 "Beach test" \
 	"Beach test" \

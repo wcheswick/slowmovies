@@ -19,6 +19,7 @@ usage="$prog [-s spf] [-f first_frame] [-n frame_count] [-F] [-q quality] title 
 #	-F	force rebuild of given movies
 
 . smdefs	|| exit 99
+mkdir -p ${WRKDIR}
 
 nspf=10
 nfirst=0
@@ -49,16 +50,16 @@ fi
 title="$1";	shift
 subtitle="$1";	shift
 
-set -x
-
 inputlist=""
 first_video_fn="$1"
 
 while [ $# -gt 0 ]
 do
-	inputlist="$inputlist -i '$1'"
+	echo "file '$1'"
 	shift
-done
+done >$WRKDIR/inputvideos
+
+echo $inputlist
 
 mkdir -p "$MASTER_CATALOG_DIR/$title"
 cd "$MASTER_CATALOG_DIR/$title"
@@ -92,12 +93,12 @@ then
 fi
 
 
-if [ -n "$force" -o ! -s info -o ! -s video.mp4  ]
+if [ -n "$force" -o ! -s info -o ! -s video.mp4 ]
 then
 	echo "$prog:	$title		building ..." 1>&2
 	#ffmpeg $inputlist -y -v 16  \
-echo =====ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal====
-	eval "ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
+
+	ffmpeg -f concat -safe 0 -i $WRKDIR/inputvideos -y -q:v 2 -v 16 -huffman optimal \
 		-vf "drawtext=text='$title': \
 			fontcolor=white: fontsize=20: \
 			box=1: boxcolor=black@0.5: \
@@ -108,7 +109,7 @@ echo =====ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal====
 			box=1: boxcolor=black@0.5: \
 			fix_bounds=1: \
 			boxborderw=5: x=w-tw-5: y=h-18:" \
-		video.mp4" || {
+		"$MASTER_CATALOG_DIR/$title"/video.mp4 || {
 			rm -f info
 			echo "	error, aborting" 1>&2
 			exit 10
@@ -130,15 +131,26 @@ then
 	updated=`date +%s`
 fi
 
+if [ -s audio.mp3 ]
+then
+	audio_size=`ls -l audio.mp3 | awk '{print $5}'`
+else
+	audio_size=""
+fi
+
+video_size=`ls -l video.mp4 | awk '{print $5}'`
+
 cat <<!EOF >info
 title="$title"
-spf=$nspf
-first=$nfirst
-count=$ncount
-quality=$nquality
-updated=$updated
+audio_size=$audio_size
 audio_updated=$audio_updated
+count=$ncount
+first=$nfirst
+quality=$nquality
+spf=$nspf
 subtitle="$subtitle"
+updated=$updated
+video_size=$video_size
 !EOF
 chmod +x info
 
