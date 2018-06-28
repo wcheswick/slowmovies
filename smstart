@@ -7,6 +7,18 @@ usage="$prog [smplay-params]"
 
 . smdefs	|| exit 99
 
+if [ ! -n "`which smsplit`" ]
+then
+	echo "$prog:	smsplit missing, needs smsysinstall" 1>&2
+	exit 1
+fi
+
+if [ ! -n "`which ffmpeg`" ]
+then
+	echo "$prog:	ffmpeg missing, needs smsysinstall" 1>&2
+	exit 1
+fi
+
 #if [ -s $LOCAL_MOVIE_LIB/banner.png ]	# show sm logo page
 #then
 #	show_frame $LOCAL_MOVIE_LIB/banner.png

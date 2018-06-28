@@ -26,6 +26,13 @@ export PATH=$PATH:$HOME/bin
 
 . smdefs	|| exit 99
 
+mkdir -p ${WRKDIR}
+>$WRKDIR/toplay
+
+cd $LOCAL_MOVIE_CATALOG
+
+grep '^updated=[0-9]' */info |
+sed 's:/.*$::' >$WRKDIR/available_movies
 
 randomize=
 onlynew=
@@ -135,27 +142,6 @@ end tell
 	esac
 }
 
-if [ ! -n "`which smsplit`" ]
-then
-	echo "$prog:	smsplit missing, needs smsysinstall" 1>&2
-	exit 1
-fi
-
-if [ ! -n "`which ffmpeg`" ]
-then
-	echo "$prog:	ffmpeg missing, needs smsysinstall" 1>&2
-	exit 1
-fi
-
-
-mkdir -p ${WRKDIR}
-
-cd $LOCAL_MOVIE_CATALOG
-	grep 'updated=[0-9]' */info |
-	sed 's:/.*$::' >$WRKDIR/available_movies
-
->$WRKDIR/toplay
-
 # only one player running, please
 
 smplay_pid=`cat $WRKDIR/pid 2>/dev/null`
@@ -206,7 +192,7 @@ FreeBSD)
 			exit 4
 		}
 	else
-		log "$prog:	ram disk already mounted: $RAM_CACHE"
+		log "$prog:	ram disk already mounted, using it"
 	fi
 	;;
 Linux)
