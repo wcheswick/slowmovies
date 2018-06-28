@@ -173,7 +173,7 @@ do
 		mkdir -p "catalog/$name"	|| exit 3
 		rm -rf catalog/"$name"/*
 	
-		curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/info || {
+		curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/.info || {
 			echo "$prog:	info missing, skipping" 1>&2
 			continue
 		}
@@ -187,6 +187,9 @@ do
 		    -o catalog/"$name"/video.mp4 || {
 			echo "$prog:	error, skipping" 1>&2
 			continue
+		}
+		mv catalog/"$name"/.info catalog/"$name"/info || {
+			echo "$prog:	error, move failed" 1>&2
 		}
 	elif [ -n "$audio_update_need" ]
 	then
