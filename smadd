@@ -49,12 +49,14 @@ fi
 title="$1";	shift
 subtitle="$1";	shift
 
+set -x
+
 inputlist=""
 first_video_fn="$1"
 
 while [ $# -gt 0 ]
 do
-	inputlist="$inputlist -i $1"
+	inputlist="$inputlist -i '$1'"
 	shift
 done
 
@@ -94,7 +96,8 @@ if [ -n "$force" -o ! -s info -o ! -s video.mp4  ]
 then
 	echo "$prog:	$title		building ..." 1>&2
 	#ffmpeg $inputlist -y -v 16  \
-	ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
+echo =====ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal====
+	eval "ffmpeg $inputlist -y -q:v 2 -v 16 -huffman optimal \
 		-vf "drawtext=text='$title': \
 			fontcolor=white: fontsize=20: \
 			box=1: boxcolor=black@0.5: \
@@ -105,7 +108,7 @@ then
 			box=1: boxcolor=black@0.5: \
 			fix_bounds=1: \
 			boxborderw=5: x=w-tw-5: y=h-18:" \
-		video.mp4 || {
+		video.mp4" || {
 			rm -f info
 			echo "	error, aborting" 1>&2
 			exit 10

@@ -7,13 +7,12 @@ usage="$prog [smplay-params]"
 
 . smdefs	|| exit 99
 
-if [ -s $LOCAL_MOVIE_LIB/banner.png ]	# show sm logo page
-then
-	show_frame $LOCAL_MOVIE_LIB/banner.png
-fi
+#if [ -s $LOCAL_MOVIE_LIB/banner.png ]	# show sm logo page
+#then
+#	show_frame $LOCAL_MOVIE_LIB/banner.png
+#fi
 
 case $# in
 0)	smplay -a -r -n;;
 *)	smplay "$@"
 esac
-
