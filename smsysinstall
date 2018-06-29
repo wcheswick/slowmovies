@@ -29,21 +29,11 @@ Linux)
 		sudo apt-get install -y imagemagick
 	fi
 
-	if [ ! -n "`which wget`" ]
-	then
-		sudo apt-get install -y wget
-	fi
-
-	if [ ! -n "`which mpg123`" ]
-	then
-		sudo apt-get install -y mpg123
-	fi
-
-	for i in w9wm xterm
+	for p in wget mpg123 bc
 	do
-		if [ ! -n "`which $i`" ]
+		if [ ! -n "`which $p`" ]
 		then
-			sudo apt-get install -y $i
+			sudo apt-get install -y $p
 		fi
 	done
 

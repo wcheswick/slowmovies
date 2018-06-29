@@ -88,9 +88,6 @@ do
 	fi
 done
 
-#define YES	0
-#define NO	1
-
 needs_update() {
 	if [ -z "$updated" ]
 	then
@@ -135,7 +132,6 @@ needs_audio_update() {
 	elif [ "$updated" -gt `file_mod_date "catalog/$name/audio.mp3"` ]
 	then
 		echo "out of date"
-		rm -f "catalog/$name/audio.mp3" 
 		return
 	elif [ "$audio_size" -gt `file_size "catalog/$name/audio.mp3"` ]
 	then
@@ -163,7 +159,8 @@ do
 
 	if [ -d "catalog/$name" ]
 	then
-		curl -s $MOVIE_CATALOG_URL/$urlname/info -o catalog/"$name"/info || {
+		rm -f info
+		wget -q $MOVIE_CATALOG_URL/$urlname/info  || {
 			echo "$prog:	info missing, skipping" 1>&2
 			continue
 		}
@@ -190,6 +187,7 @@ do
 		fi
 		
 		echo "$prog: $name	needs update ($need)" 1>&2
+exit 13
 		continue
 	fi
 
@@ -198,8 +196,7 @@ do
 		echo "$prog: $name	fetching..." 1>&2
 		mkdir -p "catalog/$name"	|| exit 3
 		(cd "catalog/$name"
-			rm -rf catalog/"$name"/*
-
+			rm -f banner.png
 			wget -q $MOVIE_CATALOG_URL/$urlname/banner.png  || {
 				echo "$prog:	banner missing" 1>&2
 			}
@@ -208,7 +205,9 @@ do
 				echo "$prog:	error, skipping" 1>&2
 				continue
 			}
-	
+			touch video.mp4
+
+			rm -f info
 			wget -q $MOVIE_CATALOG_URL/$urlname/info || {
 				echo "$prog:	info missing, skipping update" 1>&2
 				continue
@@ -223,7 +222,6 @@ do
 			}
 		)
 	fi
-exit 13
 done
 
 du -sh $LOCAL_MOVIE_LIB
