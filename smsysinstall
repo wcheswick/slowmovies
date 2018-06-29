@@ -47,6 +47,14 @@ FreeBSD)
 	splitter=ss
 	;;
 Darwin)
+	for p in ffmpeg mpg123
+	do
+		if [ -z `which $p` ]
+		then
+			echo "$prog: install $p" 1>&2
+			sudo port install $p
+		fi
+	done
 	splitter=ss
 	;;
 *)

@@ -127,8 +127,7 @@ show_frame() {
 		true	# getting error return codes, but seems to be working.
 		;;
 	appledesktop)
-		cp "$frame" $WRKDIR/apple_screen_frame
-#		setwallpaper $WRKDIR/apple_screen_frame
+#		cp "$frame" $WRKDIR/apple_screen_frame
 		setwallpaper $frame
 		;;
 	full)
@@ -276,7 +275,6 @@ do
 
 		if [ -s "$frame" ]
 		then
-#			log "---- show_frame" "$frame"
 			show_frame "$frame"	|| {
 				log "$prog:	show_frame error ($?)"
 				exit 99
