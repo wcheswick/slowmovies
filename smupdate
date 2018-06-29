@@ -187,7 +187,6 @@ do
 		fi
 		
 		echo "$prog: $name	needs update ($need)" 1>&2
-exit 13
 		continue
 	fi
 
