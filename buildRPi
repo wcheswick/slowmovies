@@ -5,7 +5,7 @@
 
 I did this on a Mac:
 
-download raspbian:
+download raspbian, desktop version
 https://www.raspberrypi.org/downloads/raspbian/
 unzip it
 
@@ -15,18 +15,8 @@ sudo dd if=Desktop/2018-04-18-raspbian-stretch.img of=/dev/rdisk8 bs=10000k
 This creates a fresh boot disk for the RPi.
 =====
 
-Installsm
+-- Initial installation:
 
-Hostname
-Pi pw
-
-Cli not desktop
-Locale stuff
-Enable ssh
-Rpi-update not a bad ideal
-Might help to install RPi hardward key for mpeg, if appropriate
-
-=====
 Install the SSD, and boot it up. Run raspi-config for the usual
 RPi installation stuff.  Some of the items I use:
 
@@ -59,7 +49,6 @@ Add the line to /boot/config.txt.
 reboot
 
 By this time, I have installed my favorite line editor:
-
 sudo apt-get install jove.
 
 More ssh stuff:
@@ -129,85 +118,6 @@ This is doubtless brittle at this point, and you might have to fiddle with thing
 Bugs/corrections are welcome.
 
 
-Principles of Operation
-
-The basic idea is to display hi-res movie frames very slowly someplace.  Think
-of it as a slightly-changing desktop background.  The idea is to have a nice 
-image, have it change slowly enough that it isn't distracting, but it is worth
-checking from time to time to see what is going on.  
-
-So it chooses a video from a collection, and displays it one frame at a time,
-typically at 10 seconds per frame, though speeds can vary.  ffmpeg(1) would
-be a fine choice for a program to do this: it is portable, handles all kinds of
-video files, lots of outputs, and knows about frame rates.
-
-Unfortunately, it doesn't have an option to output frames to the background
-screen.  This probably isn't a hard modification, and would be welcome.  I suspect
-it would take less time to install a driver than I have spent on alternatives.
-
-Another way to use ffmpeg is to simply split the entire video into a directory,
-and let the display shell script crawl through this, displaying and deleting
-images.  There is a bit of a startup problem, and it uses lots of disk space.
-It also would tend to wear out an SSD drive. I have tested a version of this, but
-it is not in the present release.  Perhaps it should be.
-
-What we need is a program that will slowly read through a video, emitting a file
-every 10 seconds, and have something else display and delete that file.  This
-can all be done on a ramdisk, removing the SSD issue.  This seems like a pretty
-simple program: what existing tools can we use?  I have tried two, and
-both have their problems.
-
-1) Opencv.
-
-The basic OpenCV version simply opens a video file, reads a frame, and writes
-the jpeg somewhere.  It writes the file name to standard output, and sleeps
-for (say) 10 seconds.  Easy, right?
-
-It is easy, if you have the right version of OpenCV installed, with the right
-codecs.  This turns out to be quite hard, and I am trying to write a program
-portable to Linux, FreeBSD, Darwin, and (if someone else wants to do it) Windows.
-
-There is still a lot of OpenCV version 2 out there, and I had a version of this
-program running on it five years ago.  Version 2 appears to be deprecated, and
-why shouldn't we use the latest, version 3?  Well, version 3 no longer really
-supports C, so the little program needs to be rewritten in C++.  I am not a 
-fan, but would certainly welcome a drop-in replacement.
-
-I am not convinced that it will Just Work.  Even when the program compiles and
-loads without complaint, it tends to return a NULL when the video file is opened.
-That's the whole error message, and the OpenCV sages do not seem to have bothered
-giving us further information.  I suspect I am missing a codec, but that's
-another can of worms for each of these three target systems.
-
-2) libav
-
-I have actually gotten this to work on some of the target machines.  The program
-is much more complicated, and the usual stackoverflow/code stealing tricks are
-gummed up by poor documentation, and lots of old, deprecated stuff.  My version
-here is actually probably a good starting point for people who were in my
-situation.
-
-There are still codec problems.
-
-Other approaches.
-
-There is a python version of OpenCV, and I wonder if that has better support.
-Certainly, the program should be easy, and maybe it would Just Work.
-
-This has all been much harder than it should be.  There are various sources of
-these packages.  On FreeBSD, there is pkg(8), building it from the ports collection,
-and fetching the source and building it.  In the good old days this would
-involve
-	make
-	make install
-and you are ready.  We have now been infested with the likes of cmake.
-
-For this distribution, it would be nice to make it easy for an average non-system
-administrator to load and go.  One way to make this easy for them:  I go through
-the pain here at the farm, and generate and distribute static binaries for
-each target system.  But no, even if some distributors take care to get the
-static builds right, the libraries they depend on (all those codecs, for example)
-do not, and mysterious errors pop up from deep within elaborate build proceedures.
 
 So I try to install or build in each target system with the minimum of fuss.
 I am not there yet.
@@ -217,16 +127,3 @@ Bill Cheswick
 ches@cheswick.com
 June 2018
 Flemington, NJ, USA
-===============
-# we use opencv to split images off of movie files:
-sudo apt-get install cmake
-
-sudo apt-get install libopencv-dev
-
-# I tried to use libav, but it is a morass:
-sudo apt-get install libav-tools
-# apt-get install -y libavutil-dev 
-# apt-get install -y libavfilter-dev 
-# #apt-get install -y libavformat-dev 
-# #apt-get install -y libsdl2-dev 
-# #apt-get install -y libavcodec-dev 

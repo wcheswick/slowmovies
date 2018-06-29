@@ -1,0 +1,88 @@
+Principles of Operation
+
+The basic idea is to display hi-res movie frames very slowly someplace.  Think
+of it as a slightly-changing desktop background.  The idea is to have a nice 
+image, have it change slowly enough that it isn't distracting, but it is worth
+checking from time to time to see what is going on.  
+
+So it chooses a video from a collection, and displays it one frame at a time,
+typically at 10 seconds per frame, though speeds can vary.  ffmpeg(1) would
+be a fine choice for a program to do this: it is portable, handles all kinds of
+video files, lots of outputs, and knows about frame rates.
+
+Unfortunately, it doesn't have an option to output frames to the background
+screen.  This probably isn't a hard modification, and would be welcome.  I suspect
+it would take less time to install a driver than I have spent on alternatives.
+
+Another way to use ffmpeg is to simply split the entire video into a directory,
+and let the display shell script crawl through this, displaying and deleting
+images.  There is a bit of a startup problem, and it uses lots of disk space.
+It also would tend to wear out an SSD drive. I have tested a version of this, but
+it is not in the present release.  Perhaps it should be.
+
+What we need is a program that will slowly read through a video, emitting a file
+every 10 seconds, and have something else display and delete that file.  This
+can all be done on a ramdisk, removing the SSD issue.  This seems like a pretty
+simple program: what existing tools can we use?  I have tried two, and
+both have their problems. For the current solution, see the end of this file.
+
+1) Opencv.
+
+The basic OpenCV version simply opens a video file, reads a frame, and writes
+the jpeg somewhere.  It writes the file name to standard output, and sleeps
+for (say) 10 seconds.  Easy, right?
+
+It is easy, if you have the right version of OpenCV installed, with the right
+codecs.  This turns out to be quite hard, and I am trying to write a program
+portable to Linux, FreeBSD, Darwin, and (if someone else wants to do it) Windows.
+
+There is still a lot of OpenCV version 2 out there, and I had a version of this
+program running on it five years ago.  Version 2 appears to be deprecated, and
+why shouldn't we use the latest, version 3?  Well, version 3 no longer really
+supports C, so the little program needs to be rewritten in C++.  I am not a 
+fan, but would certainly welcome a drop-in replacement.
+
+I am not convinced that it will Just Work.  Even when the program compiles and
+loads without complaint, it tends to return a NULL when the video file is opened.
+That's the whole error message, and the OpenCV sages do not seem to have bothered
+giving us further information.  I suspect I am missing a codec, but that's
+another can of worms for each of these three target systems.
+
+2) libav
+
+I have actually gotten this to work on some of the target machines.  The program
+is much more complicated, and the usual stackoverflow/code stealing tricks are
+gummed up by poor documentation, and lots of old, deprecated stuff.  My version
+here is actually probably a good starting point for people who were in my
+situation.
+
+There are still codec problems.
+
+Other approaches.
+
+There is a python version of OpenCV, and I wonder if that has better support.
+Certainly, the program should be easy, and maybe it would Just Work.
+
+This has all been much harder than it should be.  There are various sources of
+these packages.  On FreeBSD, there is pkg(8), building it from the ports collection,
+and fetching the source and building it.  In the good old days this would
+involve
+	make
+	make install
+and you are ready.  We have now been infested with the likes of cmake.
+
+For this distribution, it would be nice to make it easy for an average non-system
+administrator to load and go.  One way to make this easy for them:  I go through
+the pain here at the farm, and generate and distribute static binaries for
+each target system.  But no, even if some distributors take care to get the
+static builds right, the libraries they depend on (all those codecs, for example)
+do not, and mysterious errors pop up from deep within elaborate build proceedures.
+
+
+Current solution.
+
+It seems easiest to just rely on ffmpeg, with its warts.  The key is to have
+it unpack a few frames into a ramdisk, and then pause.  Smadd has code to do
+this.  'kill -STOP' and 'kill -CONT' are used to stop and start ffmpeg.  This
+creates a race condition that could result in a full file system.  The current
+code appears to be quite robust.

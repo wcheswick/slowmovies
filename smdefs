@@ -30,5 +30,26 @@ log() {
 }
 
 file_size() {
-	echo `ls -l "$1" | awk '{print $5}'`
+	case `uname` in
+	FreeBSD|Darwin)
+		stat -f %z "$1";;
+	Linux)
+		stat -c %s "$1";;
+
+	*)
+		echo `ls -l "$1" | awk '{print $5}'`
+	esac
+}
+
+file_mod_date() {
+	case `uname` in
+	FreeBSD|Darwin)
+		stat -f %m "$1";;
+	Linux)
+		stat -c %Y "$1";;
+
+	*)
+		echo "$prog: file_mod_date unavailable" 1>&2
+		echo 0
+	esac
 }

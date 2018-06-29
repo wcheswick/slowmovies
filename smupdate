@@ -96,21 +96,29 @@ needs_update() {
 	then
 		echo "unknown"
 		return
-	elif [ "$updated" -lt "$date" ]
-	then
-		echo "out of date"
-		rm -f "catalog/$name/video.mp4" 
-		return
 	elif [ ! -s "catalog/$name/video.mp4" ]
 	then
 		echo "video file missing"
 		return
+	elif [ "$updated" -gt `file_mod_date "catalog/$name/video.mp4"` ]
+	then
+		echo "out of date"
+		rm -f "catalog/$name/video.mp4" 
+		return
+#	elif [ "$updated" -lt "$date" ]
+#	then
+#		echo "out of date"
+#		rm -f "catalog/$name/video.mp4" 
+#		return
 	elif [ "$video_size" -gt `file_size "catalog/$name/video.mp4"` ]
 	then
 		echo "video file partly downloaded"
+		return
 	elif [ "$video_size" -ne `file_size "catalog/$name/video.mp4"` ]
 	then
 		echo "video file wrong length"
+		rm -f "catalog/$name/video.mp4" 
+		return
 	fi
 	echo ""
 }
@@ -120,19 +128,24 @@ needs_audio_update() {
 	then
 		echo ""		# no audio supplied
 		return
-	elif [ "$audio_updated" -lt "$date" ]
-	then
-		echo "audio out of date"
-		rm -f "catalog/$name/audio.mp3" 
-		return
 	elif [ ! -s "catalog/$name/audio.mp3" ]
 	then
 		echo "audio file missing"
+		return
+	elif [ "$updated" -gt `file_mod_date "catalog/$name/audio.mp3"` ]
+	then
+		echo "out of date"
+		rm -f "catalog/$name/audio.mp3" 
+		return
+	elif [ "$audio_size" -gt `file_size "catalog/$name/audio.mp3"` ]
+	then
+		echo "audio file partly downloaded"
 		return
 	elif [ -n "$audio_size" -a \
 		"$audio_size" -ne `file_size "catalog/$name/audio.mp3"` ]
 	then
 		echo "audio file wrong size"
+		rm -f "catalog/$name/audio.mp3" 
 		return
 	fi
 	echo ""
@@ -210,6 +223,7 @@ do
 			}
 		)
 	fi
+exit 13
 done
 
 du -sh $LOCAL_MOVIE_LIB
