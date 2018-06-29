@@ -127,14 +127,9 @@ show_frame() {
 		true	# getting error return codes, but seems to be working.
 		;;
 	appledesktop)
-osascript <<!EOF
-tell application "System Events"
-	tell (every desktop)
-		set picture rotation to 0
-		set picture to POSIX file "$frame"
-	end tell
-end tell
-!EOF
+		cp "$frame" $WRKDIR/apple_screen_frame
+#		setwallpaper $WRKDIR/apple_screen_frame
+		setwallpaper $frame
 		;;
 	full)
 		#  not yet 
@@ -174,7 +169,7 @@ comm -23 $WRKDIR/toplay - >$WRKDIR/playlist
 # from the incoming video and store them there.  Since the frames are ephemeral,
 # ramfs is fast, small, and doesn't wear out an SSD.
 
-RAM_CACHE=/tmp/$prog.cache
+RAM_CACHE=/tmp/smplay.cache
 RAMFS_SIZE_MB=60
 
 if [ ! -d $RAM_CACHE ]
@@ -204,10 +199,16 @@ Linux)
 	ls -la $RAM_CACHE 1>&2
 	;;
 Darwin)
-	ramblocks=`expr ${RAMFS_SIZE_MB} * 2048`
-	diskutil erasevolume HFS+ '{$prog}Cache' \
-		`hdiutil attach -nomount ram://$ramblocks`
-	ln -s /Volumes/${prog}Cache $RAM_CACHE
+	RAM_CACHE=/Volumes/${prog}RAMdisk
+	if [ ! -d $RAM_CACHE ]
+	then
+		log "$prog:	Creating ramdisk"
+		ramblocks=`expr ${RAMFS_SIZE_MB} \* 2048`
+		diskutil erasevolume HFS+ `basename $RAM_CACHE` \
+			`hdiutil attach -nomount ram://$ramblocks` >/dev/null || exit 99
+	else
+		log "$prog:	ramdisk already mounted"
+	fi
 	;;
 *)
 esac

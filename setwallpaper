@@ -7,6 +7,7 @@ usage="$prog image"
 #	The image file is not copied, it is aliased, so it better
 #	not go away until a new one is selected.
 
+TMP=$HOME/
 case $# in
 1)	P="$1"; shift;;
 *)	echo "$usage" 1>&2
@@ -15,7 +16,7 @@ esac
 
 case "$P" in
 /*)	;;
-*)	P=`pwd`/$P
+*)	P=`pwd`/$P	# Needs to be an absolute path
 esac
 
 osascript <<!EOF
