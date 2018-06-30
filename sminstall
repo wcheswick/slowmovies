@@ -14,7 +14,7 @@ then
 fi
 
 progs="smadd smupdate smplay smindex smbanner smstart \
-	sminstall smsysinstall smsetup smcreate smdefs \
+	sminstall smsysinstall smcreate smdefs \
 	setwallpaper"
 
 for i in $progs
