@@ -146,9 +146,11 @@ smadd -q 3 "Into Utah" \
 		$SLOWSTAGE/ToUtah/*.mp4
 
 # old time lapse, 4x3, terry sand castles
-smadd -q 3 "Early sand castles" \
-	"Terry castles in a tidal pool" \
-		$TIME_LAPSE/beach.mpg
+# [mpeg1video @ 0x80b419900] ac-tex damaged at 11 5
+# [mpeg1video @ 0x80b419900] Warning MVs not available
+#smadd -q 3 "Early sand castles" \
+#	"Terry castles in a tidal pool" \
+#		$TIME_LAPSE/beach.mpg
 smadd -q 2 "I-287 North" \
 	"A high-speed drive on I-287 north to I-87." \
 		$TIME_LAPSE/bville-north-clip.mov
@@ -194,9 +196,10 @@ smadd -q 2 "ORD to SFO test" \
 #	"An early timelapse of a public restroom area in Nantucket." \
 #		$TIME_LAPSE/rest60.mpg
 # original, from irix:
+
 smadd -q 1 "Restroom" \
 	"An early timelapse of a public restroom area in Nantucket." \
-		/r/media/videos/mv/rest60.mpg
+		/r/media/videos/TimeLapse/Unused/rest60.mpg
 
 # a test, but not interesting:
 #./smadd "Reverse"			$TIME_LAPSE/reverse.mov
