@@ -205,11 +205,12 @@ case "$first_frame" in		# skip leading frames, if desired
 	while read frame
 	do
 		if [ $i -lt ${first_frame} ]
-		do
+		then
 			rm -f "$frame"
 			i=`expr $i + 1`
 			continue
-		done
+		fi
+		i=`expr $i + 1`
 		echo $frame
 	done
 esac |
