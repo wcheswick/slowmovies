@@ -200,8 +200,18 @@ done |
 case "$first_frame" in		# skip leading frames, if desired
 "")	cat -;;
 0)	cat -;;
-*)	sed "1,${first_frame}d"
+*)	i=0
 	log "$prog: 	skipping ${first_frame} frames"
+	while read frame
+	do
+		if [ $i -lt ${first_frame} ]
+		do
+			rm -f "$frame"
+			i=`expr $i + 1`
+			continue
+		done
+		echo $frame
+	done
 esac |
 case $frame_count in		# limit frame count, if desired
 "")	cat -;;
